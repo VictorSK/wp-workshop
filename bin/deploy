@@ -1,0 +1,109 @@
+#!/usr/bin/env ruby
+#frozen_string_literal: true
+
+# Upload select contents from this directory to remote server for staging or production.
+# To use, run this script from this projects root directory using:
+#
+# $ bin/deploy
+#
+# WARNING: This will overwrite all deployed content on the remote server.
+#
+# For additional usage options, use the --help flag.
+#
+# rsync options
+# r - Recursive
+# v - Verbose
+# c - Sync by checksum
+# z - compress data transfer
+# h - human readable file sizes
+# i - itemize changes
+# n - dry run (show changes but don't make them)
+
+require 'optparse'
+require 'yaml'
+
+# Edit CONFIG params in config/config.rb
+require './config/config.rb'
+
+module WPWorkshop
+  class Deploy
+    def initialize
+      @options = {
+        simulate: false
+      }
+
+      OptionParser.new do |opts|
+        opts.banner = 'Usage: bin/deploy [options]'
+        opts.on('-t', '--themes', 'Deploy current theme to remote server.') { @options[:theme] = true }
+        opts.on('-p', '--plugins', 'Deploy all plugins to remote server.') { @options[:plugins] = true }
+        opts.on('-m', '--mu-plugins', 'Deploy all must use plugins to remote server.') { @options[:mu_plugins] = true }
+        opts.on('-s', '--simulate', 'Output command simulated, not executed.') { @options[:simulate] = true }
+        opts.on('-n', '--dry', 'Perform deploy dry run.') do
+          puts 'Running deploy dry run...'
+          puts
+          @options[:dry_run] = true
+        end
+      end.parse!
+
+      deploy_themes if @options[:theme]
+      deploy_plugins if @options[:plugins]
+      deploy_mu_plugins if @options[:mu_plugins]
+    end
+
+    def deploy_themes
+      cli_opts = %w(r v c z h i)
+      cli_opts << 'n' if @options[:dry_run]
+
+      cmd = "rsync -#{cli_opts.join('')} --progress --delete #{CONFIG[:excludes]} #{CONFIG[:theme][:local_path]}/#{CONFIG[:theme][:local_folder]}/ #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:remote][:wp_path]}#{CONFIG[:theme][:remote_path]}/#{CONFIG[:theme][:remote_folder]}/"
+
+      if @options[:simulate]
+        puts 'Deploy command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
+        puts cmd
+        puts "\nReview outputted command thoroughly before running deploy."
+      else
+        puts 'Deploying theme to remote server...' unless @options[:dry_run]
+        system(cmd) unless @options[:simulate]
+        puts "\nDeploying theme completed."
+        puts
+      end
+    end
+
+    def deploy_plugins
+      cli_opts = %w(r v c z h i)
+      cli_opts << 'n' if @options[:dry_run]
+
+      cmd = "rsync -#{cli_opts.join('')} --progress --delete #{CONFIG[:excludes]} #{CONFIG[:plugins][:local_path]}/ #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:remote][:wp_path]}#{CONFIG[:plugins][:remote_path]}/"
+
+      if @options[:simulate]
+        puts 'Deploy command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
+        puts cmd
+        puts "\nReview outputted command thoroughly before running deploy."
+      else
+        puts 'Deploying plugins to remote server...' unless @options[:dry_run]
+        system(cmd) unless @options[:simulate]
+        puts "\nDeploying plugins completed."
+        puts
+      end
+    end
+
+    def deploy_mu_plugins
+      cli_opts = %w(r v c z h i)
+      cli_opts << 'n' if @options[:dry_run]
+
+      cmd = "rsync -#{cli_opts.join('')} --progress --delete #{CONFIG[:excludes]} #{CONFIG[:plugins][:local_mu_path]}/ #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:remote][:wp_path]}#{CONFIG[:plugins][:remote_mu_path]}/"
+
+      if @options[:simulate]
+        puts 'Deploy command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
+        puts cmd
+        puts "\nReview outputted command thoroughly before running deploy."
+      else
+        puts 'Deploying must use plugins to remote server...' unless @options[:dry_run]
+        system(cmd) unless @options[:simulate]
+        puts "\nDeploying must use plugins completed."
+        puts
+      end
+    end
+  end
+end
+
+WPWorkshop::Deploy.new

@@ -1,0 +1,46 @@
+# Compose file format version
+version: "3.8"
+
+# Top building block that defines all containers used for this service.
+# https://hub.docker.com/_/wordpress/
+# https://hub.docker.com/_/mariadb
+services:
+  db:
+    container_name: db
+    image: mariadb:latest
+    ports:
+      - 3306:3306
+    restart: 'no'
+    volumes:
+      - db_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+
+  web:
+    container_name: web
+    depends_on:
+      - db
+    build:
+      context: ./config
+      dockerfile: Dockerfile-wp
+    ports:
+      - 80:80
+    restart: 'no'
+    volumes:
+      - ./wp-content/mu-plugins:/var/www/html/wp-content/mu-plugins
+      - ./wp-content/plugins:/var/www/html/wp-content/plugins
+      - ./wp-content/themes:/var/www/html/wp-content/themes
+      - ./wp-content/uploads:/var/www/html/wp-content/uploads
+    environment:
+      WORDPRESS_DB_HOST: 'db:3306'
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+      # WORDPRESS_DEBUG: 1
+
+# Top building block that defines all volumes used for this service so that we can pause abd stop the containers.
+volumes:
+  db_data: {}

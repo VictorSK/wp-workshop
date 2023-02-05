@@ -1,0 +1,156 @@
+#!/usr/bin/env ruby
+#frozen_string_literal: true
+
+# Fetches select content from remote server into this project.
+# To use, run this script from this projects root directory using:
+#
+# $ bin/fetch
+#
+# WARNING: This will overwrite local content for this project.
+#
+# For additional usage options, use the --help flag.
+#
+# rsync options
+# r - Recursive
+# v - Verbose
+# c - Sync by checksum
+# z - compress data transfer
+# h - human readable file sizes
+# i - itemize changes
+# n - dry run (show changes but don't make them)
+
+require 'optparse'
+require 'yaml'
+
+# Edit CONFIG params in config/config.rb
+require './config/config.rb'
+
+module WPWorkshop
+  class Fetch
+    def initialize
+      @options = {
+        simulate: false
+      }
+
+      OptionParser.new do |opts|
+        opts.banner = 'Usage: bin/fetch [options]'
+        opts.on('-t', '--themes', 'Fetch all themes from remote server.') { @options[:themes] = true }
+        opts.on('-p', '--plugins', 'Fetch all plugins from remote server.') { @options[:plugins] = true }
+        opts.on('-m', '--mu-plugins', 'Fetch all must use plugins from remote server.') { @options[:mu_plugins] = true }
+        opts.on('-u', '--uploads', 'Fetch all uploads from remote server.') { @options[:uploads] = true }
+        opts.on('-c', '--core', 'Fetch all themes, plugins, and uploads from remote server.') { @options[:core] = true }
+        opts.on('-d', '--data', 'Fetch database dump file from remote server.') { @options[:data_dump] = true }
+        opts.on('-o', '--overwrite', 'Delete files from destination not on remote server.') { @options[:overwrite] = true }
+        opts.on('-s', '--simulate', 'Output command simulated, not executed.') { @options[:simulate] = true }
+        opts.on('-n', '--dry', 'Perform fetch dry run.') do
+          puts 'Running fetch dry run...'
+          puts
+          @options[:dry_run] = true
+        end
+      end.parse!
+
+      fetch_themes if @options[:themes] || @options[:core]
+      fetch_plugins if @options[:plugins] || @options[:core]
+      fetch_uploads if @options[:uploads] || @options[:core]
+      fetch_mu_plugins if @options[:mu_plugins]
+      fetch_database if @options[:data_dump]
+    end
+
+    def fetch_themes
+      cli_opts = %w(r v c z h i)
+      cli_opts << 'n' if @options[:dry_run]
+      cli_opts << ' --delete' if @options[:overwrite]
+
+      cmd = "rsync -#{cli_opts.join('')} --progress #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:remote][:wp_path]}#{CONFIG[:theme][:remote_path]}/ #{CONFIG[:theme][:local_path]}/"
+
+      if @options[:simulate]
+        puts 'Fetch command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
+        puts cmd
+        puts "\nReview outputted command thoroughly before running fetch."
+      else
+        puts 'Fetching themes from remote server...' unless @options[:dry_run]
+        system(cmd) unless @options[:simulate]
+        puts "\nFetching themes completed."
+        puts
+      end
+    end
+
+    def fetch_plugins
+      cli_opts = %w(r v c z h i)
+      cli_opts << 'n' if @options[:dry_run]
+      cli_opts << ' --delete' if @options[:overwrite]
+
+      cmd = "rsync -#{cli_opts.join('')} --progress #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:remote][:wp_path]}#{CONFIG[:plugins][:remote_path]}/ #{CONFIG[:plugins][:local_path]}/"
+
+      if @options[:simulate]
+        puts 'Fetch command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
+        puts cmd
+        puts "\nReview outputted command thoroughly before running deploy."
+      else
+        puts 'Fetching plugins from remote server...' unless @options[:dry_run]
+        system(cmd) unless @options[:simulate]
+        puts "\nFetching plugins completed."
+        puts
+      end
+    end
+
+    def fetch_mu_plugins
+      cli_opts = %w(r v c z h i)
+      cli_opts << 'n' if @options[:dry_run]
+      cli_opts << ' --delete' if @options[:overwrite]
+
+      cmd = "rsync -#{cli_opts.join('')} --progress #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:remote][:wp_path]}#{CONFIG[:plugins][:remote_mu_path]}/ #{CONFIG[:plugins][:local_mu_path]}/"
+
+      if @options[:simulate]
+        puts 'Fetch command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
+        puts cmd
+        puts "\nReview outputted command thoroughly before running deploy."
+      else
+        puts 'Fetching must use plugins from remote server...' unless @options[:dry_run]
+        system(cmd) unless @options[:simulate]
+        puts "\nFetching must use plugins completed."
+        puts
+      end
+    end
+
+    def fetch_uploads
+      cli_opts = %w(r v c z h i)
+      cli_opts << 'n' if @options[:dry_run]
+      cli_opts << ' --delete' if @options[:overwrite]
+
+      cmd = "rsync -#{cli_opts.join('')} --progress #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:remote][:wp_path]}#{CONFIG[:uploads][:remote_path]}/ #{CONFIG[:uploads][:local_path]}/"
+
+      if @options[:simulate]
+        puts 'Fetch command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
+        puts cmd
+        puts "\nReview outputted command thoroughly before running deploy."
+      else
+        puts 'Fetching uploads from remote server...' unless @options[:dry_run]
+        system(cmd) unless @options[:simulate]
+        puts "\nFetching uploads completed."
+        puts
+      end
+    end
+
+    def fetch_database
+      cli_opts = %w(r v c z h i)
+      cli_opts << 'n' if @options[:dry_run]
+      cli_opts << ' --delete' if @options[:overwrite]
+
+      cmd = "rsync -#{cli_opts.join('')} --progress #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:database][:remote_path]}/#{CONFIG[:database][:dump_file]} #{CONFIG[:database][:local_path]}/"
+
+      if @options[:simulate]
+        puts 'Fetch command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
+        puts cmd
+        puts "\nReview outputted command thoroughly before running deploy."
+      else
+        puts 'Fetching database dump file from remote server...' unless @options[:dry_run]
+        system(cmd) unless @options[:simulate]
+        puts "\nFetching database dump completed."
+        puts
+      end
+    end
+  end
+end
+
+WPWorkshop::Fetch.new

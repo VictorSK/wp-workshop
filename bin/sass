@@ -1,0 +1,52 @@
+#!/usr/bin/env ruby
+#frozen_string_literal: true
+
+# Watch for SASS style changes in this project.
+# To use, run this script from this projects root directory using:
+#
+# $ bin/sass
+#
+# SASS will watch the entire SCSS directory and compile CSS files
+# for any .scss file that is not a partial (does not begin with an underscore)
+#
+# For additional usage options, use the --help flag.
+
+require 'optparse'
+require 'yaml'
+
+# Edit CONFIG params in config/config.rb
+require './config/config.rb'
+
+module WPWorkshop
+  class SassWatch
+    def initialize
+      @options = {
+        style: 'compressed',
+        simulate: false
+      }
+
+      OptionParser.new do |opts|
+        opts.banner = 'Usage: bin/sass [options]'
+        opts.on('-e', '--expanded', 'Run verbosely') { @options[:style] = 'expanded' }
+        opts.on('-s', '--simulate', 'Output command simulated, not executed.') { @options[:simulate] = true }
+      end.parse!
+
+      sass_watch
+    end
+
+    def sass_watch
+      cmd = "sass -r bootstrap-sass --watch #{CONFIG[:theme][:local_path]}/#{CONFIG[:theme][:local_folder]}/scss:#{CONFIG[:theme][:local_path]}/#{CONFIG[:theme][:local_folder]}/css --style #{@options[:style]}"
+
+      if @options[:simulate]
+        puts 'Sass command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
+        puts cmd
+        puts "\nReview outputted command thoroughly before running deploy."
+      else
+        puts 'Running Sass Watch...'
+        system(cmd) unless @options[:simulate]
+      end
+    end
+  end
+end
+
+WPWorkshop::SassWatch.new

@@ -1,0 +1,49 @@
+#!/usr/bin/env ruby
+#frozen_string_literal: true
+
+# Export data from the local development wordpress database.
+# To use, run this script from this projects root directory using:
+#
+# $ bin/export
+#
+# For additional usage options, use the --help flag.
+
+require 'optparse'
+require 'yaml'
+
+# Edit CONFIG params in config/config.rb
+require './config/config.rb'
+
+module WPWorkshop
+  class DBExport
+    def initialize
+      @options = {
+        simulate: false
+      }
+
+      OptionParser.new do |opts|
+        opts.banner = 'Usage: bin/export [options]'
+        opts.on('-s', '--simulate', 'Output command simulated, not executed.') { @options[:simulate] = true }
+      end.parse!
+
+      do_export
+    end
+
+    def do_export
+      cmd = "docker exec -i $(docker-compose ps -q db) sh -c 'exec mysqldump -u root -p\"$MYSQL_ROOT_PASSWORD\" \"$MYSQL_DATABASE\"' > #{CONFIG[:database][:local_path]}/local-$(date +%F).sql"
+
+      if @options[:simulate]
+        puts 'Database export command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
+        puts cmd
+        puts "\nReview outputted command thoroughly before running deploy."
+      else
+        puts 'Exporting WordPress Database...'
+        system(cmd) unless @options[:simulate]
+        puts "\nDatabase export completed."
+        puts
+      end
+    end
+  end
+end
+
+WPWorkshop::DBExport.new

@@ -1,0 +1,66 @@
+#!/usr/bin/env ruby
+#frozen_string_literal: true
+
+# Import data into the local development WordPress database.
+# To use, run this script from this projects root directory using:
+#
+# $ bin/import
+#
+# For additional usage options, use the --help flag.
+
+require 'optparse'
+require 'yaml'
+
+# Edit CONFIG params in config/config.rb
+require './config/config.rb'
+
+module WPWorkshop
+  class DBImport
+    def initialize
+      @options = {
+        simulate: false
+      }
+
+      OptionParser.new do |opts|
+        opts.banner = 'Usage: bin/import [options]'
+        opts.on('-r', '--replace', 'Search and replace domain name values from imported database using params specified in the config.rb file.') { @options[:replace] = true }
+        opts.on('-s', '--simulate', 'Output command simulated, not executed.') { @options[:simulate] = true }
+      end.parse!
+
+      do_import
+      search_replace if @options[:replace]
+    end
+
+    def do_import
+      cmd = "docker exec -i $(docker-compose ps -q db) sh -c 'exec mysql -u root -p\"$MYSQL_ROOT_PASSWORD\" \"$MYSQL_DATABASE\"' < #{CONFIG[:database][:local_path]}/#{CONFIG[:database][:dump_file]}"
+
+      if @options[:simulate]
+        puts 'Database import command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
+        puts cmd
+        puts "\nReview outputted command thoroughly before running deploy."
+      else
+        puts 'Importing WordPress Database...'
+        system(cmd) unless @options[:simulate]
+        puts "\nDatabase import completed."
+        puts
+      end
+    end
+
+    def search_replace
+      cmd = "docker-compose exec web sh -c 'wp search-replace \"#{CONFIG[:domain][:live]}\" \"#{CONFIG[:domain][:dev]}\" --allow-root --skip-columns=guid'"
+
+      if @options[:simulate]
+        puts 'Search and replace command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
+        puts cmd
+        puts "\nReview outputted command thoroughly before running deploy."
+      else
+        puts 'Searching and placing domain name values in the WordPress Database...'
+        system(cmd) unless @options[:simulate]
+        puts "\nDSearch and replace completed."
+        puts
+      end
+    end
+  end
+end
+
+WPWorkshop::DBImport.new
