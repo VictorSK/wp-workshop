@@ -169,7 +169,7 @@ To see all available options, run `bin/export` with the `--help` flag.
 Making a backup is easy, losing all your content over a small configuration issue is a disaster. Here's the command I use on my remote server over ssh, feel free to see if it works for you. Safety first!
 
 ```bash
-tar -vczf ~/backup/archive-$(date +%F).tar ~/home/public_html
+tar -vczf ~/backup/archive-$(date +%F).tar ~/public_html
 ```
 
 To deploy WordPress content to remote server use the `bin/deploy` command with the corresponding content flag. Because this will overwrite remote content, by default no content is deployed to the remote server without specifying a content flag.
