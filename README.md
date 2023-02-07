@@ -189,7 +189,7 @@ bin/deploy -p
 To deploy WordPress must use plugins to the remote server, open this projects root directory in terminal and run:
 
 ```bash
-bin/deploy -p
+bin/deploy -m
 ```
 
 To see all available options, run `bin/deploy` with the `--help` flag.
