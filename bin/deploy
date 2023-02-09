@@ -60,6 +60,7 @@ module WPWorkshop
         puts 'Deploy command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
         puts cmd
         puts "\nReview outputted command thoroughly before running deploy."
+        puts
       else
         puts 'Deploying theme to remote server...' unless @options[:dry_run]
         system(cmd) unless @options[:simulate]
@@ -78,6 +79,7 @@ module WPWorkshop
         puts 'Deploy command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
         puts cmd
         puts "\nReview outputted command thoroughly before running deploy."
+        puts
       else
         puts 'Deploying plugins to remote server...' unless @options[:dry_run]
         system(cmd) unless @options[:simulate]
@@ -96,6 +98,7 @@ module WPWorkshop
         puts 'Deploy command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
         puts cmd
         puts "\nReview outputted command thoroughly before running deploy."
+        puts
       else
         puts 'Deploying must use plugins to remote server...' unless @options[:dry_run]
         system(cmd) unless @options[:simulate]

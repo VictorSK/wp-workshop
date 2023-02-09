@@ -41,6 +41,7 @@ module WPWorkshop
         puts 'Sass command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
         puts cmd
         puts "\nReview outputted command thoroughly before running deploy."
+        puts
       else
         puts 'Running Sass Watch...'
         system(cmd) unless @options[:simulate]

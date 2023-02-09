@@ -67,6 +67,7 @@ module WPWorkshop
         puts 'Fetch command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
         puts cmd
         puts "\nReview outputted command thoroughly before running fetch."
+        puts
       else
         puts 'Fetching themes from remote server...' unless @options[:dry_run]
         system(cmd) unless @options[:simulate]
@@ -86,6 +87,7 @@ module WPWorkshop
         puts 'Fetch command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
         puts cmd
         puts "\nReview outputted command thoroughly before running deploy."
+        puts
       else
         puts 'Fetching plugins from remote server...' unless @options[:dry_run]
         system(cmd) unless @options[:simulate]
@@ -105,6 +107,7 @@ module WPWorkshop
         puts 'Fetch command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
         puts cmd
         puts "\nReview outputted command thoroughly before running deploy."
+        puts
       else
         puts 'Fetching must use plugins from remote server...' unless @options[:dry_run]
         system(cmd) unless @options[:simulate]
@@ -124,6 +127,7 @@ module WPWorkshop
         puts 'Fetch command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
         puts cmd
         puts "\nReview outputted command thoroughly before running deploy."
+        puts
       else
         puts 'Fetching uploads from remote server...' unless @options[:dry_run]
         system(cmd) unless @options[:simulate]
@@ -143,6 +147,7 @@ module WPWorkshop
         puts 'Fetch command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
         puts cmd
         puts "\nReview outputted command thoroughly before running deploy."
+        puts
       else
         puts 'Fetching database dump file from remote server...' unless @options[:dry_run]
         system(cmd) unless @options[:simulate]

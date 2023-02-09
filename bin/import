@@ -38,6 +38,7 @@ module WPWorkshop
         puts 'Database import command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
         puts cmd
         puts "\nReview outputted command thoroughly before running deploy."
+        puts
       else
         puts 'Importing WordPress Database...'
         system(cmd) unless @options[:simulate]
@@ -53,6 +54,7 @@ module WPWorkshop
         puts 'Search and replace command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
         puts cmd
         puts "\nReview outputted command thoroughly before running deploy."
+        puts
       else
         puts 'Searching and placing domain name values in the WordPress Database...'
         system(cmd) unless @options[:simulate]

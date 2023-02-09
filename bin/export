@@ -36,6 +36,7 @@ module WPWorkshop
         puts 'Database export command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
         puts cmd
         puts "\nReview outputted command thoroughly before running deploy."
+        puts
       else
         puts 'Exporting WordPress Database...'
         system(cmd) unless @options[:simulate]
