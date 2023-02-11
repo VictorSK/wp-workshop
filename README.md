@@ -152,15 +152,23 @@ To see all available options, run `bin/import` with the `--help` flag.
 
 ### Database Exporting
 
-To export a database dump file of the local database for this project, open this projects root directory in terminal and run:
+To create a WordPress database export use the `bin/export` command with the corresponding location flag. Because this utility can export both a remote and local WordPress database, by default no export is created without specifying a location flag.
+
+To export a database dump file of the local WordPress database for this project, open this projects root directory in terminal and run:
 
 ```bash
-bin/export
+bin/export -l
+```
+
+To export a database dump file of the remote WordPress database for this project, open this projects root directory in terminal and run:
+
+```bash
+bin/export -r
 ```
 
 To see all available options, run `bin/export` with the `--help` flag.
 
-*This script assumes the local data path relative to the executing root directory, this is configured in the in `config/config.rb` file.*
+*This script assumes the local data path relative to the executing root directory and the remote data path relative to the remote root directory, this is configured in the in `config/config.rb` file.*
 
 ## Deployment
 

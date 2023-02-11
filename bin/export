@@ -23,24 +23,43 @@ module WPWorkshop
 
       OptionParser.new do |opts|
         opts.banner = 'Usage: bin/export [options]'
+        opts.on('-l', '--local', 'Exports local WordPress database to dump file.') { @options[:local] = true }
+        opts.on('-r', '--remote', 'Exports remote WordPress database to dump file.') { @options[:remote] = true }
         opts.on('-s', '--simulate', 'Output command simulated, not executed.') { @options[:simulate] = true }
       end.parse!
 
-      do_export
+      export_local if @options[:local]
+      export_remote if @options[:remote]
     end
 
-    def do_export
+    def export_local
       cmd = "docker exec -i $(docker-compose ps -q db) sh -c 'exec mysqldump -u root -p\"$MYSQL_ROOT_PASSWORD\" \"$MYSQL_DATABASE\"' > #{CONFIG[:database][:local_path]}/local-$(date +%F).sql"
 
       if @options[:simulate]
-        puts 'Database export command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
+        puts 'Local database export command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
         puts cmd
         puts "\nReview outputted command thoroughly before running deploy."
         puts
       else
-        puts 'Exporting WordPress Database...'
+        puts 'Exporting local WordPress database...'
         system(cmd) unless @options[:simulate]
-        puts "\nDatabase export completed."
+        puts "\nLocal database export completed."
+        puts
+      end
+    end
+
+    def export_remote
+      cmd = "ssh #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]} 'cd #{CONFIG[:remote][:wp_path]};wp db export #{CONFIG[:database][:remote_path]}/#{CONFIG[:database][:dump_file]}'"
+
+      if @options[:simulate]
+        puts 'Remote database export command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
+        puts cmd
+        puts "\nReview outputted command thoroughly before running deploy."
+        puts
+      else
+        puts 'Exporting remote WordPress database...'
+        system(cmd) unless @options[:simulate]
+        puts "\nRemote database export completed."
         puts
       end
     end
