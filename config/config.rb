@@ -49,5 +49,5 @@ CONFIG = {
   },
 
   # Excluded file types from being uploads to remote server.
-  excludes: "--exclude='.git/' --exclude='.gitignore' --exclude='*.keep' --exclude='.sass-cache/' --exclude='*.sublime-*' --exclude='*.DS_Store'"
+  excludes: "--exclude='.git/' --exclude='.gitignore' --exclude='.sass-cache/' --exclude='*.DS_Store'"
 }.freeze

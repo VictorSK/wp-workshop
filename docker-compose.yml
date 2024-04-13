@@ -1,5 +1,5 @@
 # Compose file format version
-version: "3.8"
+#version: "3.8"
 
 # Top building block that defines all containers used for this service.
 # https://hub.docker.com/_/wordpress/
@@ -7,10 +7,10 @@ version: "3.8"
 services:
   db:
     container_name: db
-    image: mariadb:latest
+    image: mysql:latest
     ports:
       - 3306:3306
-    restart: 'no'
+    restart: "no"
     volumes:
       - db_data:/var/lib/mysql
     environment:
@@ -28,14 +28,14 @@ services:
       dockerfile: Dockerfile-wp
     ports:
       - 80:80
-    restart: 'no'
+    restart: "no"
     volumes:
       - ./wp-content/mu-plugins:/var/www/html/wp-content/mu-plugins
       - ./wp-content/plugins:/var/www/html/wp-content/plugins
       - ./wp-content/themes:/var/www/html/wp-content/themes
       - ./wp-content/uploads:/var/www/html/wp-content/uploads
     environment:
-      WORDPRESS_DB_HOST: 'db:3306'
+      WORDPRESS_DB_HOST: "db:3306"
       WORDPRESS_DB_USER: wordpress
       WORDPRESS_DB_PASSWORD: wordpress
       WORDPRESS_DB_NAME: wordpress

@@ -61,7 +61,7 @@ module WPWorkshop
       cli_opts << 'n' if @options[:dry_run]
       cli_opts << ' --delete' if @options[:overwrite]
 
-      cmd = "rsync -#{cli_opts.join('')} --progress #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:remote][:wp_path]}#{CONFIG[:theme][:remote_path]}/ #{CONFIG[:theme][:local_path]}/"
+      cmd = "rsync -#{cli_opts.join('')} --progress #{CONFIG[:excludes]} #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:remote][:wp_path]}#{CONFIG[:theme][:remote_path]}/ #{CONFIG[:theme][:local_path]}/"
 
       if @options[:simulate]
         puts 'Fetch command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
@@ -81,7 +81,7 @@ module WPWorkshop
       cli_opts << 'n' if @options[:dry_run]
       cli_opts << ' --delete' if @options[:overwrite]
 
-      cmd = "rsync -#{cli_opts.join('')} --progress #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:remote][:wp_path]}#{CONFIG[:plugins][:remote_path]}/ #{CONFIG[:plugins][:local_path]}/"
+      cmd = "rsync -#{cli_opts.join('')} --progress #{CONFIG[:excludes]} #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:remote][:wp_path]}#{CONFIG[:plugins][:remote_path]}/ #{CONFIG[:plugins][:local_path]}/"
 
       if @options[:simulate]
         puts 'Fetch command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
@@ -101,7 +101,7 @@ module WPWorkshop
       cli_opts << 'n' if @options[:dry_run]
       cli_opts << ' --delete' if @options[:overwrite]
 
-      cmd = "rsync -#{cli_opts.join('')} --progress #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:remote][:wp_path]}#{CONFIG[:plugins][:remote_mu_path]}/ #{CONFIG[:plugins][:local_mu_path]}/"
+      cmd = "rsync -#{cli_opts.join('')} --progress #{CONFIG[:excludes]} #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:remote][:wp_path]}#{CONFIG[:plugins][:remote_mu_path]}/ #{CONFIG[:plugins][:local_mu_path]}/"
 
       if @options[:simulate]
         puts 'Fetch command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
@@ -121,7 +121,7 @@ module WPWorkshop
       cli_opts << 'n' if @options[:dry_run]
       cli_opts << ' --delete' if @options[:overwrite]
 
-      cmd = "rsync -#{cli_opts.join('')} --progress #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:remote][:wp_path]}#{CONFIG[:uploads][:remote_path]}/ #{CONFIG[:uploads][:local_path]}/"
+      cmd = "rsync -#{cli_opts.join('')} --progress #{CONFIG[:excludes]} #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:remote][:wp_path]}#{CONFIG[:uploads][:remote_path]}/ #{CONFIG[:uploads][:local_path]}/"
 
       if @options[:simulate]
         puts 'Fetch command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
@@ -141,7 +141,7 @@ module WPWorkshop
       cli_opts << 'n' if @options[:dry_run]
       cli_opts << ' --delete' if @options[:overwrite]
 
-      cmd = "rsync -#{cli_opts.join('')} --progress #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:database][:remote_path]}/#{CONFIG[:database][:dump_file]} #{CONFIG[:database][:local_path]}/"
+      cmd = "rsync -#{cli_opts.join('')} --progress #{CONFIG[:excludes]} #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:database][:remote_path]}/#{CONFIG[:database][:dump_file]} #{CONFIG[:database][:local_path]}/"
 
       if @options[:simulate]
         puts 'Fetch command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
