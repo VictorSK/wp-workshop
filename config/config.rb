@@ -10,41 +10,53 @@ CONFIG = {
   remote: {
     host: '',
     user: '',
-    wp_path: '~/public_html'
+    live_path: '', # ~/public_html
+    staging_path: '' # ~/staging/public_html
   },
 
   # Domain name settings.
   domain: {
-    dev: '',
-    live: ''
+    dev: '', # http://www.samplesite.ldev
+    live: '', # https://www.samplesite.com'
+    staging: '' # https://staging.samplesite.com
   },
 
-  # Database settings.
+  # Database settings, and WordPress config.
   database: {
-    local_path: './data',
-    remote_path: '~/backup',
-    dump_file: 'dump.sql'
+    dev_path: './data',
+    dev_dump: 'dev_dump.sql',
+    remote_path: '~/backup', # Location of backup folder on remote server
+    live_dump: 'live_dump.sql',
+    live_name: '',
+    live_user: '',
+    live_password: '',
+    live_host: '127.0.0.1',
+    staging_dump: 'staging_dump.sql',
+    staging_name: '',
+    staging_user: '',
+    staging_password: '',
+    staging_host: '127.0.0.1'
   },
 
   # Theme settings.
   theme: {
-    local_path: './wp-content/themes',
-    local_folder: 'inspyretheme',
+    dev_path: './wp-content/themes',
+    dev_folder: '', # mytheme
     remote_path: '/wp-content/themes',
-    remote_folder: 'inspyretheme'
+    remote_folder: '' # mytheme
   },
 
   # Plugin settings.
   plugins: {
-    local_path: './wp-content/plugins',
-    local_mu_path: './wp-content/mu-plugins',
+    dev_path: './wp-content/plugins',
+    dev_mu_path: './wp-content/mu-plugins',
     remote_path: '/wp-content/plugins',
     remote_mu_path: '/wp-content/mu-plugins'
   },
 
   # Upload settings.
   uploads: {
-    local_path: './wp-content/uploads',
+    dev_path: './wp-content/uploads',
     remote_path: '/wp-content/uploads'
   },
 

@@ -1,12 +1,12 @@
 #!/usr/bin/env ruby
 #frozen_string_literal: true
 
-# Export data from the local development wordpress database.
-# To use, run this script from this projects root directory using:
+# Export data from dev, live, or staging WordPress database.
+# To use, run this script from project root directory and specify mode for exporting data from using:
 #
-# $ bin/export
+# $ bin/export [dev|live|staging] [options]
 #
-# For additional usage options, use the --help flag.
+# For usage options, use the --help flag.
 
 require 'optparse'
 require 'yaml'
@@ -15,55 +15,85 @@ require 'yaml'
 require './config/config.rb'
 
 module WPWorkshop
-  class DBExport
-    def initialize
+  class Export
+    def initialize(mode)
       @options = {
+        mode: mode, # "dev" or "live" or "staging"
         simulate: false
       }
 
       OptionParser.new do |opts|
-        opts.banner = 'Usage: bin/export [options]'
-        opts.on('-l', '--local', 'Exports local WordPress database to dump file.') { @options[:local] = true }
-        opts.on('-r', '--remote', 'Exports remote WordPress database to dump file.') { @options[:remote] = true }
+        opts.banner = 'Usage: bin/export [dev|live|staging] [options]'
         opts.on('-s', '--simulate', 'Output command simulated, not executed.') { @options[:simulate] = true }
       end.parse!
 
-      export_local if @options[:local]
-      export_remote if @options[:remote]
+      case mode
+      when 'dev'
+        export_dev
+      when 'live'
+        export_live
+      when 'staging'
+        export_staging
+      else
+        raise ArgumentError, "Invalid mode specified. Use 'dev' or 'live' or 'staging'."
+      end
     end
 
-    def export_local
-      cmd = "docker exec -i $(docker-compose ps -q db) sh -c 'exec mysqldump -u root -p\"$MYSQL_ROOT_PASSWORD\" \"$MYSQL_DATABASE\"' > #{CONFIG[:database][:local_path]}/local-$(date +%F).sql"
+    def export_dev
+      cmd = "docker exec -i $(docker-compose ps -q db) sh -c 'exec mysqldump -u root -p\"$MYSQL_ROOT_PASSWORD\" \"$MYSQL_DATABASE\"' > #{CONFIG[:database][:dev_path]}/#{CONFIG[:database][:dev_dump]}"
 
       if @options[:simulate]
-        puts 'Local database export command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
+        puts 'dev database export command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
         puts cmd
-        puts "\nReview outputted command thoroughly before running deploy."
+        puts "\nReview outputted command thoroughly before running export command."
         puts
       else
-        puts 'Exporting local WordPress database...'
+        puts 'Exporting dev WordPress database...'
         system(cmd) unless @options[:simulate]
-        puts "\nLocal database export completed."
+        puts "\ndev database export completed."
         puts
       end
     end
 
-    def export_remote
-      cmd = "ssh #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]} 'cd #{CONFIG[:remote][:wp_path]};wp db export #{CONFIG[:database][:remote_path]}/#{CONFIG[:database][:dump_file]}'"
+    def export_live
+      cmd = "ssh #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]} 'cd #{CONFIG[:remote][:live_path]};wp db export #{CONFIG[:database][:remote_path]}/#{CONFIG[:database][:live_dump]}'"
 
       if @options[:simulate]
         puts 'Remote database export command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
         puts cmd
-        puts "\nReview outputted command thoroughly before running deploy."
+        puts "\nReview outputted command thoroughly before running export command."
         puts
       else
-        puts 'Exporting remote WordPress database...'
+        puts 'Exporting remote live WordPress database...'
         system(cmd) unless @options[:simulate]
-        puts "\nRemote database export completed."
+        puts "\nRemote live database export completed."
+        puts
+      end
+    end
+
+    def export_staging
+      cmd = "ssh #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]} 'cd #{CONFIG[:remote][:staging_path]};wp db export #{CONFIG[:database][:remote_path]}/#{CONFIG[:database][:staging_dump]}'"
+
+      if @options[:simulate]
+        puts 'Remote database export command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
+        puts cmd
+        puts "\nReview outputted command thoroughly before running export command."
+        puts
+      else
+        puts 'Exporting remote staging WordPress database...'
+        system(cmd) unless @options[:simulate]
+        puts "\nRemote staging database export completed."
         puts
       end
     end
   end
 end
 
-WPWorkshop::DBExport.new
+# Check if the mode argument is passed and is either "dev" or "live" or "staging"
+if ARGV.empty? || !%w[dev live staging].include?(ARGV[0])
+  puts "You must specify 'dev' or 'live' or 'staging' to run this script."
+  puts "Usage: bin/export [dev|live|staging] [options]"
+  puts
+else
+  WPWorkshop::Export.new(ARGV[0])
+end

@@ -1,12 +1,12 @@
 #!/usr/bin/env ruby
 #frozen_string_literal: true
 
-# Fetches select content from remote server into this project.
+# Fetch select content from live or staging remote server to this project.
 # To use, run this script from this projects root directory using:
 #
-# $ bin/fetch
+# $ bin/fetch [live|staging] [options]
 #
-# WARNING: This will overwrite local content for this project.
+# WARNING: This will overwrite select dev content for this project.
 #
 # For additional usage options, use the --help flag.
 #
@@ -27,13 +27,14 @@ require './config/config.rb'
 
 module WPWorkshop
   class Fetch
-    def initialize
+    def initialize(mode)
       @options = {
+        mode: mode, # "dev" or "live" or "staging"
         simulate: false
       }
 
       OptionParser.new do |opts|
-        opts.banner = 'Usage: bin/fetch [options]'
+        opts.banner = 'Usage: bin/fetch [live|staging] [options]'
         opts.on('-t', '--themes', 'Fetch all themes from remote server.') { @options[:themes] = true }
         opts.on('-p', '--plugins', 'Fetch all plugins from remote server.') { @options[:plugins] = true }
         opts.on('-m', '--mu-plugins', 'Fetch all must use plugins from remote server.') { @options[:mu_plugins] = true }
@@ -49,11 +50,22 @@ module WPWorkshop
         end
       end.parse!
 
-      fetch_themes if @options[:themes] || @options[:core]
-      fetch_plugins if @options[:plugins] || @options[:core]
-      fetch_uploads if @options[:uploads] || @options[:core]
-      fetch_mu_plugins if @options[:mu_plugins]
-      fetch_database if @options[:data_dump]
+      case mode
+      when 'live'
+        fetch_themes if @options[:themes] || @options[:core]
+        fetch_plugins if @options[:plugins] || @options[:core]
+        fetch_uploads if @options[:uploads] || @options[:core]
+        fetch_mu_plugins if @options[:mu_plugins]
+        fetch_database if @options[:data_dump]
+      when 'staging'
+        fetch_themes if @options[:themes] || @options[:core]
+        fetch_plugins if @options[:plugins] || @options[:core]
+        fetch_uploads if @options[:uploads] || @options[:core]
+        fetch_mu_plugins if @options[:mu_plugins]
+        fetch_database if @options[:data_dump]
+      else
+        raise ArgumentError, "Invalid mode specified. Use 'live' or 'staging'."
+      end
     end
 
     def fetch_themes
@@ -61,12 +73,16 @@ module WPWorkshop
       cli_opts << 'n' if @options[:dry_run]
       cli_opts << ' --delete' if @options[:overwrite]
 
-      cmd = "rsync -#{cli_opts.join('')} --progress #{CONFIG[:excludes]} #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:remote][:wp_path]}#{CONFIG[:theme][:remote_path]}/ #{CONFIG[:theme][:local_path]}/"
+      if @options[:mode] == 'live'
+        cmd = "rsync -#{cli_opts.join('')} --progress #{CONFIG[:excludes]} #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:remote][:live_path]}#{CONFIG[:theme][:remote_path]}/ #{CONFIG[:theme][:dev_path]}/"
+      elsif @options[:mode] == 'staging'
+        cmd = "rsync -#{cli_opts.join('')} --progress #{CONFIG[:excludes]} #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:remote][:staging_path]}#{CONFIG[:theme][:remote_path]}/ #{CONFIG[:theme][:dev_path]}/"
+      end
 
       if @options[:simulate]
         puts 'Fetch command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
         puts cmd
-        puts "\nReview outputted command thoroughly before running fetch."
+        puts "\nReview outputted command thoroughly before running fetch command."
         puts
       else
         puts 'Fetching themes from remote server...' unless @options[:dry_run]
@@ -81,12 +97,16 @@ module WPWorkshop
       cli_opts << 'n' if @options[:dry_run]
       cli_opts << ' --delete' if @options[:overwrite]
 
-      cmd = "rsync -#{cli_opts.join('')} --progress #{CONFIG[:excludes]} #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:remote][:wp_path]}#{CONFIG[:plugins][:remote_path]}/ #{CONFIG[:plugins][:local_path]}/"
+      if @options[:mode] == 'live'
+        cmd = "rsync -#{cli_opts.join('')} --progress #{CONFIG[:excludes]} #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:remote][:live_path]}#{CONFIG[:plugins][:remote_path]}/ #{CONFIG[:plugins][:dev_path]}/"
+      elsif @options[:mode] == 'staging'
+        cmd = "rsync -#{cli_opts.join('')} --progress #{CONFIG[:excludes]} #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:remote][:staging_path]}#{CONFIG[:plugins][:remote_path]}/ #{CONFIG[:plugins][:dev_path]}/"
+      end
 
       if @options[:simulate]
         puts 'Fetch command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
         puts cmd
-        puts "\nReview outputted command thoroughly before running deploy."
+        puts "\nReview outputted command thoroughly before running fetch command."
         puts
       else
         puts 'Fetching plugins from remote server...' unless @options[:dry_run]
@@ -101,12 +121,16 @@ module WPWorkshop
       cli_opts << 'n' if @options[:dry_run]
       cli_opts << ' --delete' if @options[:overwrite]
 
-      cmd = "rsync -#{cli_opts.join('')} --progress #{CONFIG[:excludes]} #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:remote][:wp_path]}#{CONFIG[:plugins][:remote_mu_path]}/ #{CONFIG[:plugins][:local_mu_path]}/"
+      if @options[:mode] == 'live'
+        cmd = "rsync -#{cli_opts.join('')} --progress #{CONFIG[:excludes]} #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:remote][:live_path]}#{CONFIG[:plugins][:remote_mu_path]}/ #{CONFIG[:plugins][:dev_mu_path]}/"
+      elsif @options[:mode] == 'staging'
+        cmd = "rsync -#{cli_opts.join('')} --progress #{CONFIG[:excludes]} #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:remote][:staging_path]}#{CONFIG[:plugins][:remote_mu_path]}/ #{CONFIG[:plugins][:dev_mu_path]}/"
+      end
 
       if @options[:simulate]
         puts 'Fetch command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
         puts cmd
-        puts "\nReview outputted command thoroughly before running deploy."
+        puts "\nReview outputted command thoroughly before running fetch command."
         puts
       else
         puts 'Fetching must use plugins from remote server...' unless @options[:dry_run]
@@ -121,12 +145,16 @@ module WPWorkshop
       cli_opts << 'n' if @options[:dry_run]
       cli_opts << ' --delete' if @options[:overwrite]
 
-      cmd = "rsync -#{cli_opts.join('')} --progress #{CONFIG[:excludes]} #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:remote][:wp_path]}#{CONFIG[:uploads][:remote_path]}/ #{CONFIG[:uploads][:local_path]}/"
+      if @options[:mode] == 'live'
+        cmd = "rsync -#{cli_opts.join('')} --progress #{CONFIG[:excludes]} #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:remote][:live_path]}#{CONFIG[:uploads][:remote_path]}/ #{CONFIG[:uploads][:dev_path]}/"
+      elsif @options[:mode] == 'staging'
+        cmd = "rsync -#{cli_opts.join('')} --progress #{CONFIG[:excludes]} #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:remote][:staging_path]}#{CONFIG[:uploads][:remote_path]}/ #{CONFIG[:uploads][:dev_path]}/"
+      end
 
       if @options[:simulate]
         puts 'Fetch command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
         puts cmd
-        puts "\nReview outputted command thoroughly before running deploy."
+        puts "\nReview outputted command thoroughly before running fetch command."
         puts
       else
         puts 'Fetching uploads from remote server...' unless @options[:dry_run]
@@ -141,12 +169,16 @@ module WPWorkshop
       cli_opts << 'n' if @options[:dry_run]
       cli_opts << ' --delete' if @options[:overwrite]
 
-      cmd = "rsync -#{cli_opts.join('')} --progress #{CONFIG[:excludes]} #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:database][:remote_path]}/#{CONFIG[:database][:dump_file]} #{CONFIG[:database][:local_path]}/"
+      if @options[:mode] == 'live'
+        cmd = "rsync -#{cli_opts.join('')} --progress #{CONFIG[:excludes]} #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:database][:remote_path]}/#{CONFIG[:database][:live_dump]} #{CONFIG[:database][:dev_path]}/"
+      elsif @options[:mode] == 'staging'
+        cmd = "rsync -#{cli_opts.join('')} --progress #{CONFIG[:excludes]} #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:database][:remote_path]}/#{CONFIG[:database][:staging_dump]} #{CONFIG[:database][:dev_path]}/"
+      end
 
       if @options[:simulate]
         puts 'Fetch command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
         puts cmd
-        puts "\nReview outputted command thoroughly before running deploy."
+        puts "\nReview outputted command thoroughly before running fetch command."
         puts
       else
         puts 'Fetching database dump file from remote server...' unless @options[:dry_run]
@@ -158,4 +190,11 @@ module WPWorkshop
   end
 end
 
-WPWorkshop::Fetch.new
+# Check if the mode argument is passed and is either "live" or "staging"
+if ARGV.empty? || !%w[live staging].include?(ARGV[0])
+  puts "You must specify 'live' or 'staging' to run this script."
+  puts "Usage: bin/fetch [live|staging] [options]"
+  puts
+else
+  WPWorkshop::Fetch.new(ARGV[0])
+end

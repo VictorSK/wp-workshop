@@ -1,10 +1,10 @@
 #!/usr/bin/env ruby
 #frozen_string_literal: true
 
-# Import data into the local development WordPress database.
-# To use, run this script from this projects root directory using:
+# Import data into dev, live, or staging WordPress database.
+# To use, run this script from project root directory and specify mode for importing data into using:
 #
-# $ bin/import
+# $ bin/import [dev|live|staging] [options]
 #
 # For additional usage options, use the --help flag.
 
@@ -15,29 +15,47 @@ require 'yaml'
 require './config/config.rb'
 
 module WPWorkshop
-  class DBImport
-    def initialize
+  class Import
+    def initialize(mode)
       @options = {
+        mode: mode, # "dev" or "live" or "staging"
         simulate: false
       }
 
       OptionParser.new do |opts|
-        opts.banner = 'Usage: bin/import [options]'
+        opts.banner = 'Usage: bin/import [dev|live|staging] [options]'
+        opts.on('-a', '--alternate', 'Command assumes importing from live. Use alternate database and domain name from staging.') { @options[:alternate] = true }
+        opts.on('-d', '--dev', 'Command assumes importing from live. Use dev database and domain name.') { @options[:dev] = true }
         opts.on('-r', '--replace', 'Search and replace domain name values from imported database using params specified in the config.rb file.') { @options[:replace] = true }
         opts.on('-s', '--simulate', 'Output command simulated, not executed.') { @options[:simulate] = true }
       end.parse!
 
-      do_import
-      search_replace if @options[:replace]
+      case mode
+      when 'dev'
+        import_dev
+        replace_dev if @options[:replace]
+      when 'live'
+        # import_live
+        # replace_live if @options[:replace]
+      when 'staging'
+        import_staging
+        replace_staging if @options[:replace]
+      else
+        raise ArgumentError, "Invalid mode specified. Use 'dev' or 'live' or 'staging'."
+      end
     end
 
-    def do_import
-      cmd = "docker exec -i $(docker-compose ps -q db) sh -c 'exec mysql -u root -p\"$MYSQL_ROOT_PASSWORD\" \"$MYSQL_DATABASE\"' < #{CONFIG[:database][:local_path]}/#{CONFIG[:database][:dump_file]}"
+    def import_dev
+      if @options[:alternate]
+        cmd = "docker exec -i $(docker-compose ps -q db) sh -c 'exec mysql -u root -p\"$MYSQL_ROOT_PASSWORD\" \"$MYSQL_DATABASE\"' < #{CONFIG[:database][:dev_path]}/#{CONFIG[:database][:staging_dump]}"
+      else
+        cmd = "docker exec -i $(docker-compose ps -q db) sh -c 'exec mysql -u root -p\"$MYSQL_ROOT_PASSWORD\" \"$MYSQL_DATABASE\"' < #{CONFIG[:database][:dev_path]}/#{CONFIG[:database][:live_dump]}"
+      end
 
       if @options[:simulate]
         puts 'Database import command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
         puts cmd
-        puts "\nReview outputted command thoroughly before running deploy."
+        puts "\nReview outputted command thoroughly before running import command."
         puts
       else
         puts 'Importing WordPress Database...'
@@ -47,13 +65,101 @@ module WPWorkshop
       end
     end
 
-    def search_replace
-      cmd = "docker-compose exec web sh -c 'wp search-replace \"#{CONFIG[:domain][:live]}\" \"#{CONFIG[:domain][:dev]}\" --allow-root --skip-columns=guid'"
+    def replace_dev
+      if @options[:alternate]
+        cmd = "docker-compose exec web sh -c 'wp search-replace \"#{CONFIG[:domain][:staging]}\" \"#{CONFIG[:domain][:dev]}\" --allow-root --skip-columns=guid'"
+      else
+        cmd = "docker-compose exec web sh -c 'wp search-replace \"#{CONFIG[:domain][:live]}\" \"#{CONFIG[:domain][:dev]}\" --allow-root --skip-columns=guid'"
+      end
 
       if @options[:simulate]
         puts 'Search and replace command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
         puts cmd
-        puts "\nReview outputted command thoroughly before running deploy."
+        puts "\nReview outputted command thoroughly before running search and replace command."
+        puts
+      else
+        puts 'Searching and placing domain name values in the WordPress Database...'
+        system(cmd) unless @options[:simulate]
+        puts "\nDSearch and replace completed."
+        puts
+      end
+    end
+
+    def import_live
+      if @options[:dev]
+        cmd = "ssh #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]} 'cd #{CONFIG[:remote][:live_path]};wp db import #{CONFIG[:database][:remote_path]}/#{CONFIG[:database][:dev_dump]}'"
+      elsif @options[:alternate]
+        cmd = "ssh #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]} 'cd #{CONFIG[:remote][:live_path]};wp db import #{CONFIG[:database][:remote_path]}/#{CONFIG[:database][:staging_dump]}'"
+      else
+        cmd = "ssh #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]} 'cd #{CONFIG[:remote][:live_path]};wp db import #{CONFIG[:database][:remote_path]}/#{CONFIG[:database][:live_dump]}'"
+      end
+
+      if @options[:simulate]
+        puts 'Database import command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
+        puts cmd
+        puts "\nReview outputted command thoroughly before running import command."
+        puts
+      else
+        puts 'Importing WordPress Database...'
+        system(cmd) unless @options[:simulate]
+        puts "\nDatabase import completed."
+        puts
+      end
+    end
+
+    def replace_live
+      if @options[:dev]
+        cmd = "ssh #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]} 'cd #{CONFIG[:remote][:live_path]};wp search-replace \"#{CONFIG[:domain][:dev]}\" \"#{CONFIG[:domain][:live]}\" --skip-columns=guid'"
+      elsif @options[:alternate]
+        cmd = "ssh #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]} 'cd #{CONFIG[:remote][:live_path]};wp search-replace \"#{CONFIG[:domain][:staging]}\" \"#{CONFIG[:domain][:live]}\" --skip-columns=guid'"
+      else
+        cmd = "ssh #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]} 'cd #{CONFIG[:remote][:live_path]};wp search-replace \"#{CONFIG[:domain][:live]}\" \"#{CONFIG[:domain][:live]}\" --skip-columns=guid'"
+      end
+
+      if @options[:simulate]
+        puts 'Search and replace command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
+        puts cmd
+        puts "\nReview outputted command thoroughly before running search and replace command."
+        puts
+      else
+        puts 'Searching and placing domain name values in the WordPress Database...'
+        system(cmd) unless @options[:simulate]
+        puts "\nDSearch and replace completed."
+        puts
+      end
+    end
+
+    def import_staging
+      if @options[:dev]
+        cmd = "ssh #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]} 'cd #{CONFIG[:remote][:staging_path]};wp db import #{CONFIG[:database][:remote_path]}/#{CONFIG[:database][:dev_dump]}'"
+      else
+        cmd = "ssh #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]} 'cd #{CONFIG[:remote][:staging_path]};wp db import #{CONFIG[:database][:remote_path]}/#{CONFIG[:database][:live_dump]}'"
+      end
+
+      if @options[:simulate]
+        puts 'Database import command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
+        puts cmd
+        puts "\nReview outputted command thoroughly before running import command."
+        puts
+      else
+        puts 'Importing WordPress Database...'
+        system(cmd) unless @options[:simulate]
+        puts "\nDatabase import completed."
+        puts
+      end
+    end
+
+    def replace_staging
+      if @options[:dev]
+        cmd = "ssh #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]} 'cd #{CONFIG[:remote][:staging_path]};wp search-replace \"#{CONFIG[:domain][:dev]}\" \"#{CONFIG[:domain][:staging]}\" --skip-columns=guid'"
+      else
+        cmd = "ssh #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]} 'cd #{CONFIG[:remote][:staging_path]};wp search-replace \"#{CONFIG[:domain][:live]}\" \"#{CONFIG[:domain][:staging]}\" --skip-columns=guid'"
+      end
+
+      if @options[:simulate]
+        puts 'Search and replace command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
+        puts cmd
+        puts "\nReview outputted command thoroughly before running search and replace command."
         puts
       else
         puts 'Searching and placing domain name values in the WordPress Database...'
@@ -65,4 +171,12 @@ module WPWorkshop
   end
 end
 
-WPWorkshop::DBImport.new
+# Check if the mode argument is passed and is either "dev" or "live" or "staging"
+if ARGV.empty? || !%w[dev live staging].include?(ARGV[0])
+  puts "You must specify 'dev' or 'live' or 'staging' to run this script."
+  puts "Specify mode for importing data info."
+  puts "Usage: bin/import [dev|live|staging] [options]"
+  puts
+else
+  WPWorkshop::Import.new(ARGV[0])
+end
