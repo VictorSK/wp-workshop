@@ -1,0 +1,69 @@
+#!/usr/bin/env ruby
+#frozen_string_literal: true
+
+# Create new live or staging WordPress site.
+# To use, run this script from this projects root directory using:
+#
+# $ bin/create [live|staging] [options]
+#
+# For usage options, use the --help flag.
+
+require 'optparse'
+require 'yaml'
+
+# Edit CONFIG params in config/config.rb
+require './config/config.rb'
+
+module WPWorkshop
+  class Create
+    def initialize(mode)
+      @options = {
+        mode: mode, # "live" or "staging"
+        simulate: false
+      }
+
+      OptionParser.new do |opts|
+        opts.banner = 'Usage:bin/create [live|staging] [options]'
+        opts.on('-s', '--simulate', 'Output command simulated, not executed.') { @options[:simulate] = true }
+      end.parse!
+
+      case mode
+      when 'live'
+        create_site
+      when 'staging'
+        create_site
+      else
+        raise ArgumentError, "Invalid mode specified. Use 'live' or 'staging'."
+      end
+    end
+
+    def create_site
+      if @options[:mode] == 'live'
+        cmd = "ssh #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]} 'cd #{CONFIG[:remote][:live_path]};wp core download;wp config create --dbname=#{CONFIG[:database][:live_name]} --dbuser=#{CONFIG[:database][:live_user]} --dbpass=#{CONFIG[:database][:live_password]} --dbhost=#{CONFIG[:database][:live_host]}'"
+      elsif @options[:mode] == 'staging'
+        cmd = "ssh #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]} 'cd #{CONFIG[:remote][:staging_path]};wp core download;wp config create --dbname=#{CONFIG[:database][:staging_name]} --dbuser=#{CONFIG[:database][:staging_user]} --dbpass=#{CONFIG[:database][:staging_password]} --dbhost=#{CONFIG[:database][:staging_host]}'"
+      end
+
+      if @options[:simulate]
+        puts 'Remote create command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
+        puts cmd
+        puts "\nReview outputted command thoroughly before running create command."
+        puts
+      else
+        puts 'Creating remote staging WordPress site...'
+        system(cmd) unless @options[:simulate]
+        puts "\nRemote site creation completed."
+        puts
+      end
+    end
+  end
+end
+
+# Check if the mode argument is passed and is either "live" or "staging"
+if ARGV.empty? || !%w[live staging].include?(ARGV[0])
+  puts "You must specify 'live' or 'staging' to run this script."
+  puts "Usage: bin/create [live|staging] [options]"
+  puts
+else
+  WPWorkshop::Create.new(ARGV[0])
+end
