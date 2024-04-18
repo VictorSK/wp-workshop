@@ -2,6 +2,19 @@
 
 The noteworthy updates for each WP Workshop version are included here. For a complete changelog, see the git history.
 
+## [1.0.0] - April 18, 2024
+
+### New Features
+
+- Add mode to scope utilities for dev, live, and staging
+- Add staging management
+- Add create utility to make installing WordPress remotely easier
+- Add upload deployment
+
+### Enhancements
+
+- Refactored config variable names to remove naming confusion
+
 ## [0.3.0] - April 12, 2024
 
 ### Changes

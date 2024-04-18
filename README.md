@@ -1,6 +1,6 @@
-# WP Workshop
+# Seamlessly manage your WordPress site development with WP Workshop
 
-WP Workshop is a collection of utilities I use to make local WordPress theme development easier, leveraging the power of Docker for container virtualization, and Ruby Gems for Sass/SCSS compiling. Crafted to be simple, straightforward, and easy to customize.
+WP Workshop is a collection of utilities I use to make local WordPress theme development, deployment, and maintenance easier, leveraging the power of Docker for container virtualization, and Ruby Gems for Sass/SCSS compiling. Crafted to be simple, straightforward, and easy to customize.
 
 Please use [GitHub Issues](https://github.com/VictorSK/wp-workshop/issues) to report bugs.
 
@@ -34,7 +34,10 @@ I tried to keep the configuration simple and centralized to a few files. **You m
 
 Before starting Docker containers, **you must configure** the `config\Dockerfile-wp` and `docker-compose.yml` configuration files per project specifications.
 
-Helpful References <https://docs.docker.com/compose/compose-file/> <https://docs.docker.com/compose/reference/>
+Helpful References:
+
+- <https://docs.docker.com/compose/compose-file/>
+- <https://docs.docker.com/compose/reference/>
 
 ### Start Docker
 
@@ -60,11 +63,125 @@ Stops and removes containers, networks, volumes, and images created by up. Use t
 docker compose down
 ```
 
-## Local Development Utilities
+## Utilities
 
 Before you use these utilities, **you must setup** the `config/config.rb` configuration file per project specifications.
 
 All utilities have a simulate flag (`-s`) to simulate the command to be executed and output the exact command to your terminal window **without** running the command. This is ideal to verify the command and allows you to check for configuration issues before you run it.
+
+### Fetching Remote Content
+
+**WARNING:** This will overwrite local content for this project. Before moving forward with fetching content from remote server **REMEMBER TO BACKUP YOUR LOCAL FILES** for this project. Safety first!
+
+To fetch WordPress content from remote server use the `bin/fetch` command with the corresponding mode `[live|staging]`and content flag.
+
+Because this will overwrite local content, by default no content is fetched from the remote server without specifying a content flag.
+
+To fetch remote WordPress theme content (considered core content with `-c` flag) from the live site, open this projects root directory in terminal and run:
+
+```bash
+bin/fetch live -t
+```
+
+To fetch remote WordPress plugin content (considered core content with `-c` flag) from the live site, open this projects root directory in terminal and run:
+
+```bash
+bin/fetch live -p
+```
+
+To fetch remote WordPress upload content (considered core content with `-c` flag) from the live site, open this projects root directory in terminal and run:
+
+```bash
+bin/fetch live -u
+```
+
+To fetch all core remote WordPress content from the live site, open this projects root directory in terminal and run:
+
+```bash
+bin/fetch live -c
+```
+
+To fetch remote WordPress must use plugin content from the live site, open this projects root directory in terminal and run:
+
+```bash
+bin/fetch live -m
+```
+
+To fetch remote WordPress database dump file from the live site, open this projects root directory in terminal and run:
+
+```bash
+bin/fetch live -d
+```
+
+This utility has a simulate flag (`-s`) to simulate the command to be executed and output the exact command to your terminal window **without** running the command. This is ideal to verify the command and allows you to check for configuration issues before you run it.
+
+To see all available options, run `bin/fetch` with the `--help` flag.
+
+_This script assumes the local data path relative to the executing root directory, this is configured in the in `config/config.rb` file._
+
+### Database Exporting
+
+To create a WordPress database export use the `bin/export` command with the corresponding mode `[dev|live|staging]` of the WordPress database you which to export.
+
+To export a database dump file of the local dev WordPress database for this project, open this projects root directory in terminal and run:
+
+```bash
+bin/export dev
+```
+
+To export a database dump file of the remote live WordPress database for this project, open this projects root directory in terminal and run:
+
+```bash
+bin/export live
+```
+
+To export a database dump file of the remote staging WordPress database for this project, open this projects root directory in terminal and run:
+
+```bash
+bin/export staging
+```
+
+This utility has a simulate flag (`-s`) to simulate the command to be executed and output the exact command to your terminal window **without** running the command. This is ideal to verify the command and allows you to check for configuration issues before you run it.
+
+To see all available options, run `bin/export` with the `--help` flag.
+
+_This script assumes the local data path relative to the executing root directory and the remote data path relative to the remote root directory, this is configured in the in `config/config.rb` file._
+
+### Database Importing
+
+**NOTE:** Before importing database content your Docker containers must be running. Depending on the size of your database, importing might take several minute to complete.
+
+To import a WordPress database dump file use the `bin/import` command with the corresponding mode `[dev|live|staging]` of the WordPress database You wish to import **INTO**.
+
+To import a database dump file into the local dev database for this project, open this projects root directory in terminal and run:
+
+```bash
+bin/import dev
+```
+
+By default only the database contents are imported, if you want to replace the website's live URL with a development URL specified in the `config/config.rb` while importing then you should run `bin/import dev` using the replace flag:
+
+```bash
+bin/import dev -r
+```
+
+To import a database dump file into the remote live database for this project, open this projects root directory in terminal and run:
+
+```bash
+bin/import live
+```
+
+By default only the database contents are imported, if you want to replace the website's development URL with a live URL specified in the `config/config.rb` while importing then you should run `bin/import live` using the replace flag:
+
+```bash
+bin/import live -r
+```
+
+This utility has a simulate flag (`-s`) to simulate the command to be executed and output the exact command to your terminal window **without** running the command. This is ideal to verify the command and allows you to check for configuration issues before you run it.
+
+To see all available options, run `bin/import` with the `--help` flag.
+
+_This script assumes the local data path relative to the executing root directory and an import file name, this is configured in the in `config/config.rb` file._
 
 ### Sass Styling
 
@@ -82,93 +199,7 @@ bin/sass -e
 
 To see all available options, run `bin/sass` with the `--help` flag.
 
-*This script assumes the WordPress theme path relative to the executing root directory, this is configured in the in `config/config.rb` file.*
-
-### Fetching Remote Content
-
-**WARNING:** This will overwrite local content for this project. Before moving forward with fetching content from remote server **REMEMBER TO BACKUP YOUR LOCAL FILES** for this project. Safety first!
-
-To fetch WordPress content from remote server use the `bin/fetch` command with the corresponding content flag. Because this will overwrite local content, by default no content is fetched from the remote server without specifying a content flag.
-
-To fetch remote WordPress theme content (considered core content with `-c` flag), open this projects root directory in terminal and run:
-
-```bash
-bin/fetch -t
-```
-
-To fetch remote WordPress plugin content (considered core content with `-c` flag), open this projects root directory in terminal and run:
-
-```bash
-bin/fetch -p
-```
-
-To fetch remote WordPress upload content (considered core content with `-c` flag), open this projects root directory in terminal and run:
-
-```bash
-bin/fetch -u
-```
-
-To fetch all core remote WordPress content, open this projects root directory in terminal and run:
-
-```bash
-bin/fetch -c
-```
-
-To fetch remote WordPress must use plugin content, open this projects root directory in terminal and run:
-
-```bash
-bin/fetch -m
-```
-
-To fetch remote WordPress database dump file, open this projects root directory in terminal and run:
-
-```bash
-bin/fetch -d
-```
-
-To see all available options, run `bin/fetch` with the `--help` flag.
-
-*This script assumes the local data path relative to the executing root directory, this is configured in the in `config/config.rb` file.*
-
-### Database Importing
-
-**NOTE:** Before importing database content your Docker containers must be running. Depending on the size of your database, this might take several minute to complete.
-
-To import a database dump file into the local database for this project, open this projects root directory in terminal and run:
-
-```bash
-bin/import
-```
-
-By default only the database contents are imported, if you want to replace the website's live URL with a development URL specified in the `config/config.rb` while importing then you should run `bin/import` using the replace flag:
-
-```bash
-bin/import -r
-```
-
-To see all available options, run `bin/import` with the `--help` flag.
-
-*This script assumes the local data path relative to the executing root directory and an import file name, this is configured in the in `config/config.rb` file.*
-
-### Database Exporting
-
-To create a WordPress database export use the `bin/export` command with the corresponding location flag. Because this utility can export both a remote and local WordPress database, by default no export is created without specifying a location flag.
-
-To export a database dump file of the local WordPress database for this project, open this projects root directory in terminal and run:
-
-```bash
-bin/export -l
-```
-
-To export a database dump file of the remote WordPress database for this project, open this projects root directory in terminal and run:
-
-```bash
-bin/export -r
-```
-
-To see all available options, run `bin/export` with the `--help` flag.
-
-*This script assumes the local data path relative to the executing root directory and the remote data path relative to the remote root directory, this is configured in the in `config/config.rb` file.*
+_This script assumes the WordPress theme path relative to the executing root directory, this is configured in the in `config/config.rb` file._
 
 ## Deployment
 
@@ -180,29 +211,37 @@ Making a backup is easy, losing all your content over a small configuration issu
 tar -vczf ~/backup/archive-$(date +%F).tar ~/public_html
 ```
 
-To deploy WordPress content to remote server use the `bin/deploy` command with the corresponding content flag. Because this will overwrite remote content, by default no content is deployed to the remote server without specifying a content flag.
+To deploy WordPress content to remote live server use the `bin/deploy live` command with the corresponding content flag. Because this will overwrite remote content, by default no content is deployed to the remote server without specifying a content flag.
 
-To deploy WordPress theme content to the remote server, open this projects root directory in terminal and run:
-
-```bash
-bin/deploy -t
-```
-
-To deploy WordPress plugins to the remote server, open this projects root directory in terminal and run:
+To deploy WordPress theme content to the remote live server, open this projects root directory in terminal and run:
 
 ```bash
-bin/deploy -p
+bin/deploy live -t
 ```
 
-To deploy WordPress must use plugins to the remote server, open this projects root directory in terminal and run:
+To deploy WordPress plugins to the remote live server, open this projects root directory in terminal and run:
 
 ```bash
-bin/deploy -m
+bin/deploy live -p
 ```
+
+To deploy WordPress must use plugins to the remote live server, open this projects root directory in terminal and run:
+
+```bash
+bin/deploy live -m
+```
+
+To deploy WordPress uploads to the remote live server, open this projects root directory in terminal and run:
+
+```bash
+bin/deploy live -u
+```
+
+This utility has a simulate flag (`-s`) to simulate the command to be executed and output the exact command to your terminal window **without** running the command. This is ideal to verify the command and allows you to check for configuration issues before you run it.
 
 To see all available options, run `bin/deploy` with the `--help` flag.
 
-*This script assumes the local content paths relative to the executing root directory and remote content paths relative to the remote root directory, this is configured in the in `config/config.rb` file.*
+_This script assumes the local content paths relative to the executing root directory and remote content paths relative to the remote root directory, this is configured in the in `config/config.rb` file._
 
 ## Contributing
 
