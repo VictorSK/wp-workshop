@@ -35,7 +35,7 @@ module WPWorkshop
     end
 
     def sass_watch
-      cmd = "sass -r bootstrap-sass --watch #{CONFIG[:theme][:local_path]}/#{CONFIG[:theme][:local_folder]}/scss:#{CONFIG[:theme][:local_path]}/#{CONFIG[:theme][:local_folder]}/css --style #{@options[:style]}"
+      cmd = "sass -r bootstrap-sass --watch #{CONFIG[:theme][:dev_path]}/#{CONFIG[:theme][:dev_folder]}/scss:#{CONFIG[:theme][:dev_path]}/#{CONFIG[:theme][:dev_folder]}/css --style #{@options[:style]}"
 
       if @options[:simulate]
         puts 'Sass command to be executed... (OUTPUTTED WITHOUT EXECUTE)'

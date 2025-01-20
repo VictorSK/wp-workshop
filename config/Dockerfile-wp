@@ -1,5 +1,5 @@
 # Use the latest version of WordPress or match the WordPress version of your existing project.
-FROM wordpress:6.5.2
+FROM wordpress:6.7.0
 
 # Install WP-CLI
 RUN curl -s -o /usr/local/bin/wp https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && chmod +x /usr/local/bin/wp

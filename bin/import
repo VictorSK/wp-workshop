@@ -35,8 +35,8 @@ module WPWorkshop
         import_dev
         replace_dev if @options[:replace]
       when 'live'
-        # import_live
-        # replace_live if @options[:replace]
+        import_live
+        replace_live if @options[:replace]
       when 'staging'
         import_staging
         replace_staging if @options[:replace]
@@ -47,9 +47,9 @@ module WPWorkshop
 
     def import_dev
       if @options[:alternate]
-        cmd = "docker exec -i $(docker-compose ps -q db) sh -c 'exec mysql -u root -p\"$MYSQL_ROOT_PASSWORD\" \"$MYSQL_DATABASE\"' < #{CONFIG[:database][:dev_path]}/#{CONFIG[:database][:staging_dump]}"
+        cmd = "docker exec -i $(docker compose ps -q db) sh -c 'exec mysql -u root -p\"$MYSQL_ROOT_PASSWORD\" \"$MYSQL_DATABASE\"' < #{CONFIG[:database][:dev_path]}/#{CONFIG[:database][:staging_dump]}"
       else
-        cmd = "docker exec -i $(docker-compose ps -q db) sh -c 'exec mysql -u root -p\"$MYSQL_ROOT_PASSWORD\" \"$MYSQL_DATABASE\"' < #{CONFIG[:database][:dev_path]}/#{CONFIG[:database][:live_dump]}"
+        cmd = "docker exec -i $(docker compose ps -q db) sh -c 'exec mysql -u root -p\"$MYSQL_ROOT_PASSWORD\" \"$MYSQL_DATABASE\"' < #{CONFIG[:database][:dev_path]}/#{CONFIG[:database][:live_dump]}"
       end
 
       if @options[:simulate]
@@ -67,9 +67,9 @@ module WPWorkshop
 
     def replace_dev
       if @options[:alternate]
-        cmd = "docker-compose exec web sh -c 'wp search-replace \"#{CONFIG[:domain][:staging]}\" \"#{CONFIG[:domain][:dev]}\" --allow-root --skip-columns=guid'"
+        cmd = "docker compose exec web sh -c 'wp search-replace \"#{CONFIG[:domain][:staging]}\" \"#{CONFIG[:domain][:dev]}\" --allow-root --skip-columns=guid'"
       else
-        cmd = "docker-compose exec web sh -c 'wp search-replace \"#{CONFIG[:domain][:live]}\" \"#{CONFIG[:domain][:dev]}\" --allow-root --skip-columns=guid'"
+        cmd = "docker compose exec web sh -c 'wp search-replace \"#{CONFIG[:domain][:live]}\" \"#{CONFIG[:domain][:dev]}\" --allow-root --skip-columns=guid'"
       end
 
       if @options[:simulate]
