@@ -1,2 +1,3 @@
-/wp-content
+.DS_Store
 .sass-cache
+.ruby-lsp

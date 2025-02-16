@@ -6,7 +6,7 @@
 # https://hub.docker.com/_/mariadb
 services:
   db:
-    container_name: db
+    container_name: db_workshop
     image: mysql:latest
     ports:
       - 3306:3306
@@ -20,7 +20,7 @@ services:
       MYSQL_PASSWORD: wordpress
 
   web:
-    container_name: web
+    container_name: web_workshop
     depends_on:
       - db
     build:
@@ -30,6 +30,7 @@ services:
       - 80:80
     restart: "no"
     volumes:
+      - ./wp-content/libraries:/var/www/html/wp-content/libraries
       - ./wp-content/mu-plugins:/var/www/html/wp-content/mu-plugins
       - ./wp-content/plugins:/var/www/html/wp-content/plugins
       - ./wp-content/themes:/var/www/html/wp-content/themes
