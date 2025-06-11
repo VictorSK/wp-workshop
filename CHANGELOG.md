@@ -2,6 +2,12 @@
 
 The noteworthy updates for each WP Workshop version are included here. For a complete changelog, see the git history.
 
+## [1.0.1] - June 11, 2025
+
+### Enhancements
+
+- General maintenance and enhancements
+
 ## [1.0.0] - April 18, 2024
 
 ### New Features
