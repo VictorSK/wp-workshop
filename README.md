@@ -1,6 +1,23 @@
-# Seamlessly manage your WordPress site development with WP Workshop
+# WP Workshop — Effortless Local WordPress Development & Deployment
 
-WP Workshop is a collection of utilities I use to make local WordPress theme development, deployment, and maintenance easier, leveraging the power of Docker for container virtualization, and Ruby Gems for Sass/SCSS compiling. Crafted to be simple, straightforward, and easy to customize.
+![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
+![Docker](https://img.shields.io/badge/docker-ready-blue)
+![Ruby](https://img.shields.io/badge/ruby-%3E%3D2.7-red)
+[![Issues](https://img.shields.io/github/issues/VictorSK/wp-workshop)](https://github.com/VictorSK/wp-workshop/issues)
+[![Last Commit](https://img.shields.io/github/last-commit/VictorSK/wp-workshop)](https://github.com/VictorSK/wp-workshop/commits/main)
+
+**WP Workshop** streamlines every aspect of local WordPress theme development, deployment, and maintenance. Built for simplicity and flexibility, it combines Docker-powered containerization with Ruby-based Sass/SCSS compilation, giving you a robust toolkit for modern WordPress workflows. Crafted to be simple, straightforward, and easy to customize.
+
+- **Spin up local WordPress environments in seconds with Docker**
+- **Easily fetch, export, import, and deploy content and databases**
+- **Automate Sass/SCSS compilation with Ruby Gems**
+- **Centralized, minimal configuration for fast project setup**
+- **Safe, scriptable utilities with simulation mode for peace of mind**
+
+> **Safety First:**
+> All WP Workshop utilities support a simulation mode (`-s` flag) that shows you the exact command to be run—without making any changes. Use it to preview actions and verify your configuration before running real operations.
+
+Whether you’re building new themes, managing content, or deploying updates, WP Workshop helps you move faster and stay in control... all from your terminal.
 
 Please use [GitHub Issues](https://github.com/VictorSK/wp-workshop/issues) to report bugs.
 
@@ -8,7 +25,7 @@ Please use [GitHub Issues](https://github.com/VictorSK/wp-workshop/issues) to re
 
 WP Workshop **requires docker**. If you do not have docker, [download docker](https://www.docker.com/products/docker-desktop) and install it on your local machine.
 
-WP Workshop **requires Ruby only if** you want to use the `bin/sass` utility which utilizes Sass and Bootstrap Ruby Gems to compile Bootstap and custom SCSS.
+WP Workshop **requires Ruby only if** you want to use the `bin/sass` utility which utilizes Sass and Bootstrap Ruby Gems to compile Bootstrap and custom SCSS.
 
 ## Project Organization
 
@@ -27,7 +44,7 @@ This is what each root project item is for:
 I tried to keep the configuration simple and centralized to a few files. **You must** review these configuration files and customize with settings for your specific configuration.
 
 - Configure your project settings in `config/config.rb`. This is the main configuration file and all the utilities used in WP Workshop leverage these settings.
-- Configure the WordPress version in `config\Dockerfile-wp`. This is the WordPress version that will be installed to your Docker container and should be the latest WordPress version if starting a new WordPress project, or match the WordPress version of your existing project needs.
+- Configure the WordPress version in `config/Dockerfile-wp`. This is the WordPress version that will be installed to your Docker container and should be the latest WordPress version if starting a new WordPress project, or match the WordPress version your existing project needs.
 - Configure Docker container default settings in `docker-compose.yml`. This is the Docker Compose build file and should be customize for your specific needs if needed. Most WordPress sites only need a Web and DB container.
 
 ## Docker
@@ -121,7 +138,7 @@ _This script assumes the local data path relative to the executing root director
 
 ### Database Exporting
 
-To create a WordPress database export use the `bin/export` command with the corresponding mode `[dev|live|staging]` of the WordPress database you which to export.
+To create a WordPress database export use the `bin/export` command with the corresponding mode `[dev|live|staging]` of the WordPress database you wish to export.
 
 To export a database dump file of the local dev WordPress database for this project, open this projects root directory in terminal and run:
 
@@ -149,7 +166,7 @@ _This script assumes the local data path relative to the executing root director
 
 ### Database Importing
 
-**NOTE:** Before importing database content your Docker containers must be running. Depending on the size of your database, importing might take several minute to complete.
+**NOTE:** Before importing database content your Docker containers must be running. Depending on the size of your database, importing might take several minutes to complete.
 
 To import a WordPress database dump file use the `bin/import` command with the corresponding mode `[dev|live|staging]` of the WordPress database You wish to import **INTO**.
 
@@ -245,11 +262,11 @@ _This script assumes the local content paths relative to the executing root dire
 
 ## Contributing
 
-Bug reports, pull requests, and enhancements are welcome on [GitHub](https://github.com/VictorSK/wp-workshop). This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct. It's code, lets have fun!
+Bug reports, pull requests, and enhancements are welcome on [GitHub](https://github.com/VictorSK/wp-workshop). This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct. It's code, let's have fun!
 
 ## License
 
-WP Workshop is copyright © 20021-2023 Victor S. Keenan. It is free software and may be redistributed under the terms specified in the [LICENSE](LICENSE) file.
+WP Workshop is copyright © 2021-2025 Victor S. Keenan. It is free software and may be redistributed under the terms specified in the [LICENSE](LICENSE) file.
 
 ## Coded With Love
 
