@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-#frozen_string_literal: true
+# frozen_string_literal: true
 
 # Import data into dev, live, or staging WordPress database.
 # To use, run this script from project root directory and specify mode for importing data into using:
@@ -47,9 +47,9 @@ module WPWorkshop
 
     def import_dev
       if @options[:alternate]
-        cmd = "docker exec -i $(docker compose ps -q db) sh -c 'exec mysql -u root -p\"$MYSQL_ROOT_PASSWORD\" \"$MYSQL_DATABASE\"' < #{CONFIG[:database][:dev_path]}/#{CONFIG[:database][:staging_dump]}"
+        cmd = "docker compose exec -T db sh -c 'mysql -u root -p\"$MYSQL_ROOT_PASSWORD\" \"$MYSQL_DATABASE\"' < #{CONFIG[:database][:dev_path]}/#{CONFIG[:database][:staging_dump]}"
       else
-        cmd = "docker exec -i $(docker compose ps -q db) sh -c 'exec mysql -u root -p\"$MYSQL_ROOT_PASSWORD\" \"$MYSQL_DATABASE\"' < #{CONFIG[:database][:dev_path]}/#{CONFIG[:database][:live_dump]}"
+        cmd = "docker compose exec -T db sh -c 'mysql -u root -p\"$MYSQL_ROOT_PASSWORD\" \"$MYSQL_DATABASE\"' < #{CONFIG[:database][:dev_path]}/#{CONFIG[:database][:live_dump]}"
       end
 
       if @options[:simulate]
@@ -59,8 +59,11 @@ module WPWorkshop
         puts
       else
         puts 'Importing WordPress Database...'
-        system(cmd) unless @options[:simulate]
-        puts "\nDatabase import completed."
+        if system(cmd)
+          puts "\nDatabase import completed."
+        else
+          puts "\nDatabase import failed."
+        end
         puts
       end
     end
@@ -78,9 +81,12 @@ module WPWorkshop
         puts "\nReview outputted command thoroughly before running search and replace command."
         puts
       else
-        puts 'Searching and placing domain name values in the WordPress Database...'
-        system(cmd) unless @options[:simulate]
-        puts "\nDSearch and replace completed."
+        puts 'Searching and replacing domain name values in the WordPress Database...'
+        if system(cmd)
+          puts "\nSearch and replace completed."
+        else
+          puts "\nSearch and replace failed."
+        end
         puts
       end
     end
@@ -101,8 +107,11 @@ module WPWorkshop
         puts
       else
         puts 'Importing WordPress Database...'
-        system(cmd) unless @options[:simulate]
-        puts "\nDatabase import completed."
+        if system(cmd)
+          puts "\nDatabase import completed."
+        else
+          puts "\nDatabase import failed."
+        end
         puts
       end
     end
@@ -122,9 +131,12 @@ module WPWorkshop
         puts "\nReview outputted command thoroughly before running search and replace command."
         puts
       else
-        puts 'Searching and placing domain name values in the WordPress Database...'
-        system(cmd) unless @options[:simulate]
-        puts "\nDSearch and replace completed."
+        puts 'Searching and replacing domain name values in the WordPress Database...'
+        if system(cmd)
+          puts "\nSearch and replace completed."
+        else
+          puts "\nSearch and replace failed."
+        end
         puts
       end
     end
@@ -143,8 +155,11 @@ module WPWorkshop
         puts
       else
         puts 'Importing WordPress Database...'
-        system(cmd) unless @options[:simulate]
-        puts "\nDatabase import completed."
+        if system(cmd)
+          puts "\nDatabase import completed."
+        else
+          puts "\nDatabase import failed."
+        end
         puts
       end
     end
@@ -162,9 +177,12 @@ module WPWorkshop
         puts "\nReview outputted command thoroughly before running search and replace command."
         puts
       else
-        puts 'Searching and placing domain name values in the WordPress Database...'
-        system(cmd) unless @options[:simulate]
-        puts "\nDSearch and replace completed."
+        puts 'Searching and replacing domain name values in the WordPress Database...'
+        if system(cmd)
+          puts "\nSearch and replace completed."
+        else
+          puts "\nSearch and replace failed."
+        end
         puts
       end
     end

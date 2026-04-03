@@ -42,6 +42,6 @@ services:
       WORDPRESS_DB_NAME: wordpress
       # WORDPRESS_DEBUG: 1
 
-# Top building block that defines all volumes used for this service so that we can pause abd stop the containers.
+# Top building block that defines all volumes used for this service so that we can pause and stop the containers.
 volumes:
   db_data: {}

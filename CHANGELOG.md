@@ -2,6 +2,15 @@
 
 The noteworthy updates for each WP Workshop version are included here. For a complete changelog, see the git history.
 
+## [1.1.0] - April 03, 2026
+
+### Enhancements
+
+- Improve local database import and export workflows for current Docker Compose setups and more reliable backups
+- Improve command-line feedback across create, fetch, deploy, import, export, and Sass utilities with clearer failure reporting
+- Refine live and staging content sync workflows for more consistent fetch and deploy behavior
+- Refresh local development dependencies, including WordPress 6.9.4, a more robust WP-CLI install step, and Bootstrap 5.3.8
+
 ## [1.0.1] - June 11, 2025
 
 ### Enhancements

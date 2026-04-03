@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-#frozen_string_literal: true
+# frozen_string_literal: true
 
 # Export data from dev, live, or staging WordPress database.
 # To use, run this script from project root directory and specify mode for exporting data from using:
@@ -40,7 +40,7 @@ module WPWorkshop
     end
 
     def export_dev
-      cmd = "docker exec -i $(docker-compose ps -q db) sh -c 'exec mysqldump -u root -p\"$MYSQL_ROOT_PASSWORD\" \"$MYSQL_DATABASE\"' > #{CONFIG[:database][:dev_path]}/#{CONFIG[:database][:dev_dump]}"
+      cmd = "docker compose exec -T db sh -c 'mysqldump --set-gtid-purged=OFF --single-transaction -u root -p\"$MYSQL_ROOT_PASSWORD\" \"$MYSQL_DATABASE\"' > #{CONFIG[:database][:dev_path]}/#{CONFIG[:database][:dev_dump]}"
 
       if @options[:simulate]
         puts 'dev database export command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
@@ -49,8 +49,11 @@ module WPWorkshop
         puts
       else
         puts 'Exporting dev WordPress database...'
-        system(cmd) unless @options[:simulate]
-        puts "\ndev database export completed."
+        if system(cmd)
+          puts "\ndev database export completed."
+        else
+          puts "\ndev database export failed."
+        end
         puts
       end
     end
@@ -65,8 +68,11 @@ module WPWorkshop
         puts
       else
         puts 'Exporting remote live WordPress database...'
-        system(cmd) unless @options[:simulate]
-        puts "\nRemote live database export completed."
+        if system(cmd)
+          puts "\nRemote live database export completed."
+        else
+          puts "\nRemote live database export failed."
+        end
         puts
       end
     end
@@ -81,8 +87,11 @@ module WPWorkshop
         puts
       else
         puts 'Exporting remote staging WordPress database...'
-        system(cmd) unless @options[:simulate]
-        puts "\nRemote staging database export completed."
+        if system(cmd)
+          puts "\nRemote staging database export completed."
+        else
+          puts "\nRemote staging database export failed."
+        end
         puts
       end
     end

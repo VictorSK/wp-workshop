@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-#frozen_string_literal: true
+# frozen_string_literal: true
 
 # Create new live or staging WordPress site.
 # To use, run this script from this projects root directory using:
@@ -23,18 +23,13 @@ module WPWorkshop
       }
 
       OptionParser.new do |opts|
-        opts.banner = 'Usage:bin/create [live|staging] [options]'
+        opts.banner = 'Usage: bin/create [live|staging] [options]'
         opts.on('-s', '--simulate', 'Output command simulated, not executed.') { @options[:simulate] = true }
       end.parse!
 
-      case mode
-      when 'live'
-        create_site
-      when 'staging'
-        create_site
-      else
-        raise ArgumentError, "Invalid mode specified. Use 'live' or 'staging'."
-      end
+      raise ArgumentError, "Invalid mode specified. Use 'live' or 'staging'." unless %w[live staging].include?(mode)
+
+      create_site
     end
 
     def create_site
@@ -50,9 +45,12 @@ module WPWorkshop
         puts "\nReview outputted command thoroughly before running create command."
         puts
       else
-        puts 'Creating remote staging WordPress site...'
-        system(cmd) unless @options[:simulate]
-        puts "\nRemote site creation completed."
+        puts "Creating remote #{@options[:mode]} WordPress site..."
+        if system(cmd)
+          puts "\nRemote site creation completed."
+        else
+          puts "\nRemote site creation failed."
+        end
         puts
       end
     end

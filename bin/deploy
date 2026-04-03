@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-#frozen_string_literal: true
+# frozen_string_literal: true
 
 # Deploy select content from your dev project to remote server for live or staging.
 # To use, run this script from this projects root directory using:
@@ -48,33 +48,21 @@ module WPWorkshop
         end
       end.parse!
 
-      case mode
-      when 'live'
-        deploy_themes if @options[:theme]
-        deploy_plugins if @options[:plugins]
-        deploy_mu_plugins if @options[:mu_plugins]
-        deploy_uploads if @options[:uploads]
-        deploy_database if @options[:data_dump]
-      when 'staging'
-        deploy_themes if @options[:theme]
-        deploy_plugins if @options[:plugins]
-        deploy_mu_plugins if @options[:mu_plugins]
-        deploy_uploads if @options[:uploads]
-        deploy_database if @options[:data_dump]
-      else
-        raise ArgumentError, "Invalid mode specified. Use 'live' or 'staging'."
-      end
+      raise ArgumentError, "Invalid mode specified. Use 'live' or 'staging'." unless %w[live staging].include?(mode)
+
+      deploy_themes if @options[:theme]
+      deploy_plugins if @options[:plugins]
+      deploy_mu_plugins if @options[:mu_plugins]
+      deploy_uploads if @options[:uploads]
+      deploy_database if @options[:data_dump]
     end
 
     def deploy_themes
       cli_opts = %w(r v c z h i)
       cli_opts << 'n' if @options[:dry_run]
 
-      if @options[:mode] == 'live'
-        cmd = "rsync -#{cli_opts.join('')} --progress --delete --no-perms #{CONFIG[:excludes]} #{CONFIG[:theme][:dev_path]}/#{CONFIG[:theme][:dev_folder]}/ #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:remote][:live_path]}#{CONFIG[:theme][:remote_path]}/#{CONFIG[:theme][:remote_folder]}/"
-      elsif @options[:mode] == 'staging'
-        cmd = "rsync -#{cli_opts.join('')} --progress --delete --no-perms #{CONFIG[:excludes]} #{CONFIG[:theme][:dev_path]}/#{CONFIG[:theme][:dev_folder]}/ #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:remote][:staging_path]}#{CONFIG[:theme][:remote_path]}/#{CONFIG[:theme][:remote_folder]}/"
-      end
+      remote_path = @options[:mode] == 'live' ? CONFIG[:remote][:live_path] : CONFIG[:remote][:staging_path]
+      cmd = "rsync -#{cli_opts.join('')} --progress --delete --no-perms #{CONFIG[:excludes]} #{CONFIG[:theme][:dev_path]}/#{CONFIG[:theme][:dev_folder]}/ #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{remote_path}#{CONFIG[:theme][:remote_path]}/#{CONFIG[:theme][:remote_folder]}/"
 
       if @options[:simulate]
         puts 'Deploy command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
@@ -83,8 +71,11 @@ module WPWorkshop
         puts
       else
         puts 'Deploying theme to remote server...' unless @options[:dry_run]
-        system(cmd) unless @options[:simulate]
-        puts "\nDeploying theme completed."
+        if system(cmd)
+          puts "\nDeploying theme completed."
+        else
+          puts "\nDeploying theme failed."
+        end
         puts
       end
     end
@@ -93,11 +84,8 @@ module WPWorkshop
       cli_opts = %w(r v c z h i)
       cli_opts << 'n' if @options[:dry_run]
 
-      if @options[:mode] == 'live'
-        cmd = "rsync -#{cli_opts.join('')} --progress --delete --no-perms #{CONFIG[:excludes]} #{CONFIG[:plugins][:dev_path]}/ #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:remote][:live_path]}#{CONFIG[:plugins][:remote_path]}/"
-      elsif @options[:mode] == 'staging'
-        cmd = "rsync -#{cli_opts.join('')} --progress --delete --no-perms #{CONFIG[:excludes]} #{CONFIG[:plugins][:dev_path]}/ #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:remote][:staging_path]}#{CONFIG[:plugins][:remote_path]}/"
-      end
+      remote_path = @options[:mode] == 'live' ? CONFIG[:remote][:live_path] : CONFIG[:remote][:staging_path]
+      cmd = "rsync -#{cli_opts.join('')} --progress --delete --no-perms #{CONFIG[:excludes]} #{CONFIG[:plugins][:dev_path]}/ #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{remote_path}#{CONFIG[:plugins][:remote_path]}/"
 
       if @options[:simulate]
         puts 'Deploy command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
@@ -106,8 +94,11 @@ module WPWorkshop
         puts
       else
         puts 'Deploying plugins to remote server...' unless @options[:dry_run]
-        system(cmd) unless @options[:simulate]
-        puts "\nDeploying plugins completed."
+        if system(cmd)
+          puts "\nDeploying plugins completed."
+        else
+          puts "\nDeploying plugins failed."
+        end
         puts
       end
     end
@@ -116,11 +107,8 @@ module WPWorkshop
       cli_opts = %w(r v c z h i)
       cli_opts << 'n' if @options[:dry_run]
 
-      if @options[:mode] == 'live'
-        cmd = "rsync -#{cli_opts.join('')} --progress --delete --no-perms #{CONFIG[:excludes]} #{CONFIG[:plugins][:dev_mu_path]}/ #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:remote][:live_path]}#{CONFIG[:plugins][:remote_mu_path]}/"
-      elsif @options[:mode] == 'staging'
-        cmd = "rsync -#{cli_opts.join('')} --progress --delete --no-perms #{CONFIG[:excludes]} #{CONFIG[:plugins][:dev_mu_path]}/ #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:remote][:staging_path]}#{CONFIG[:plugins][:remote_mu_path]}/"
-      end
+      remote_path = @options[:mode] == 'live' ? CONFIG[:remote][:live_path] : CONFIG[:remote][:staging_path]
+      cmd = "rsync -#{cli_opts.join('')} --progress --delete --no-perms #{CONFIG[:excludes]} #{CONFIG[:plugins][:dev_mu_path]}/ #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{remote_path}#{CONFIG[:plugins][:remote_mu_path]}/"
 
       if @options[:simulate]
         puts 'Deploy command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
@@ -129,8 +117,11 @@ module WPWorkshop
         puts
       else
         puts 'Deploying must use plugins to remote server...' unless @options[:dry_run]
-        system(cmd) unless @options[:simulate]
-        puts "\nDeploying must use plugins completed."
+        if system(cmd)
+          puts "\nDeploying must use plugins completed."
+        else
+          puts "\nDeploying must use plugins failed."
+        end
         puts
       end
     end
@@ -139,11 +130,8 @@ module WPWorkshop
       cli_opts = %w(r v c z h i)
       cli_opts << 'n' if @options[:dry_run]
 
-      if @options[:mode] == 'live'
-        cmd = "rsync -#{cli_opts.join('')} --progress --delete --no-perms #{CONFIG[:excludes]} #{CONFIG[:uploads][:dev_path]}/ #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:remote][:live_path]}#{CONFIG[:uploads][:remote_path]}/"
-      elsif @options[:mode] == 'staging'
-        cmd = "rsync -#{cli_opts.join('')} --progress --delete --no-perms #{CONFIG[:excludes]} #{CONFIG[:uploads][:dev_path]}/ #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:remote][:staging_path]}#{CONFIG[:uploads][:remote_path]}/"
-      end
+      remote_path = @options[:mode] == 'live' ? CONFIG[:remote][:live_path] : CONFIG[:remote][:staging_path]
+      cmd = "rsync -#{cli_opts.join('')} --progress --delete --no-perms #{CONFIG[:excludes]} #{CONFIG[:uploads][:dev_path]}/ #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{remote_path}#{CONFIG[:uploads][:remote_path]}/"
 
       if @options[:simulate]
         puts 'Deploy command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
@@ -151,9 +139,12 @@ module WPWorkshop
         puts "\nReview outputted command thoroughly before running deploy command."
         puts
       else
-        puts 'Deploying must use plugins to remote server...' unless @options[:dry_run]
-        system(cmd) unless @options[:simulate]
-        puts "\nDeploying uploads completed."
+        puts 'Deploying uploads to remote server...' unless @options[:dry_run]
+        if system(cmd)
+          puts "\nDeploying uploads completed."
+        else
+          puts "\nDeploying uploads failed."
+        end
         puts
       end
     end
@@ -162,11 +153,7 @@ module WPWorkshop
       cli_opts = %w(r v c z h i)
       cli_opts << 'n' if @options[:dry_run]
 
-      if @options[:mode] == 'live'
-        cmd = "rsync -#{cli_opts.join('')} --progress --delete --no-perms #{CONFIG[:database][:dev_path]}/#{CONFIG[:database][:dev_dump]} #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:database][:remote_path]}/"
-      elsif @options[:mode] == 'staging'
-        cmd = "rsync -#{cli_opts.join('')} --progress --delete --no-perms #{CONFIG[:database][:dev_path]}//#{CONFIG[:database][:dev_dump]} #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:database][:remote_path]}/"
-      end
+      cmd = "rsync -#{cli_opts.join('')} --progress --delete --no-perms #{CONFIG[:database][:dev_path]}/#{CONFIG[:database][:dev_dump]} #{CONFIG[:remote][:user]}@#{CONFIG[:remote][:host]}:#{CONFIG[:database][:remote_path]}/"
 
       if @options[:simulate]
         puts 'Deploy command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
@@ -175,8 +162,11 @@ module WPWorkshop
         puts
       else
         puts 'Deploying database dump file to remote server...' unless @options[:dry_run]
-        system(cmd) unless @options[:simulate]
-        puts "\nDeploying database export completed."
+        if system(cmd)
+          puts "\nDeploying database export completed."
+        else
+          puts "\nDeploying database export failed."
+        end
         puts
       end
     end

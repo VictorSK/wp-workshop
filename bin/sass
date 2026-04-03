@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-#frozen_string_literal: true
+# frozen_string_literal: true
 
 # Watch for SASS style changes in this project.
 # To use, run this script from this projects root directory using:
@@ -44,7 +44,7 @@ module WPWorkshop
         puts
       else
         puts 'Running Sass Watch...'
-        system(cmd) unless @options[:simulate]
+        puts "\nSass Watch failed." unless system(cmd)
       end
     end
   end

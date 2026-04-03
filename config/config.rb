@@ -60,6 +60,6 @@ CONFIG = {
     remote_path: '/wp-content/uploads'
   },
 
-  # Excluded file types from being uploads to remote server.
+  # Excluded file types from being uploaded to remote server.
   excludes: "--exclude='.git/' --exclude='.gitignore' --exclude='.sass-cache/' --exclude='*.DS_Store'"
 }.freeze

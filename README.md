@@ -44,12 +44,12 @@ This is what each root project item is for:
 I tried to keep the configuration simple and centralized to a few files. **You must** review these configuration files and customize with settings for your specific configuration.
 
 - Configure your project settings in `config/config.rb`. This is the main configuration file and all the utilities used in WP Workshop leverage these settings.
-- Configure the WordPress version in `config/Dockerfile-wp`. This is the WordPress version that will be installed to your Docker container and should be the latest WordPress version if starting a new WordPress project, or match the WordPress version your existing project needs.
+- Configure the WordPress version in `config/Dockerfile-wp`. This is the WordPress version that will be installed to your Docker container and should be the latest WordPress version if starting a new WordPress project, or match the WordPress version of your existing project needs.
 - Configure Docker container default settings in `docker-compose.yml`. This is the Docker Compose build file and should be customize for your specific needs if needed. Most WordPress sites only need a Web and DB container.
 
 ## Docker
 
-Before starting Docker containers, **you must configure** the `config\Dockerfile-wp` and `docker-compose.yml` configuration files per project specifications.
+Before starting Docker containers, **you must configure** the `config/Dockerfile-wp` and `docker-compose.yml` configuration files per project specifications.
 
 Helpful References:
 
@@ -70,7 +70,7 @@ docker compose up
 docker compose stop
 ```
 
-If Docker is running in the foreground, press `ctl+c` in the active terminal window to stop Docker.
+If Docker is running in the foreground, press `ctrl+c` in the active terminal window to stop Docker.
 
 ### Stop Docker and Delete the Current Environment Data
 
@@ -90,7 +90,7 @@ All utilities have a simulate flag (`-s`) to simulate the command to be executed
 
 **WARNING:** This will overwrite local content for this project. Before moving forward with fetching content from remote server **REMEMBER TO BACKUP YOUR LOCAL FILES** for this project. Safety first!
 
-To fetch WordPress content from remote server use the `bin/fetch` command with the corresponding mode `[live|staging]`and content flag.
+To fetch WordPress content from remote server use the `bin/fetch` command with the corresponding mode `[live|staging]` and content flag.
 
 Because this will overwrite local content, by default no content is fetched from the remote server without specifying a content flag.
 
@@ -262,12 +262,12 @@ _This script assumes the local content paths relative to the executing root dire
 
 ## Contributing
 
-Bug reports, pull requests, and enhancements are welcome on [GitHub](https://github.com/VictorSK/wp-workshop). This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct. It's code, let's have fun!
+Bug reports, pull requests, and enhancements are welcome on [GitHub](https://github.com/VictorSK/wp-workshop). This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct. It's code, lets have fun!
 
 ## License
 
-WP Workshop is copyright © 2021-2025 Victor S. Keenan. It is free software and may be redistributed under the terms specified in the [LICENSE](LICENSE) file.
+WP Workshop is copyright © 2021-2026 Victor S. Keenan. It is free software and may be redistributed under the terms specified in the [LICENSE](LICENSE) file.
 
 ## Coded With Love
 
-Coded crafted by me, [Victor S. Keenan](https://www.victorkeenan.com). Find me on Twitter [@VictorSK](https://twitter.com/victorsk) or [hire me](https://www.inspyre.com) to design, develop, and grow your product or service.
+Coded crafted by me, [Victor S. Keenan](https://www.victorkeenan.com). Find me on Twitter/X [@VictorSK](https://x.com/victorsk) or [hire me](https://www.inspyre.com) to design, develop, and grow your product or service.
