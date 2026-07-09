@@ -16,7 +16,8 @@ CONFIG = {
 
   # Domain name settings.
   domain: {
-    dev: '', # http://www.samplesite.ldev
+    dev_old: '', # http://www.samplesite.ldev
+    dev: '', # http://www.samplesite.localhost
     live: '', # https://www.samplesite.com'
     staging: '' # https://staging.samplesite.com
   },

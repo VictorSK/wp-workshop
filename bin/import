@@ -72,7 +72,7 @@ module WPWorkshop
 
     def replace_dev
       if @options[:dev]
-        cmd = "docker compose exec web sh -c 'wp search-replace \"#{CONFIG[:domain][:dev]}\" \"#{CONFIG[:domain][:dev]}\" --allow-root --skip-columns=guid'"
+        cmd = "docker compose exec web sh -c 'wp search-replace \"#{CONFIG[:domain][:dev_old]}\" \"#{CONFIG[:domain][:dev]}\" --allow-root --skip-columns=guid'"
       elsif @options[:alternate]
         cmd = "docker compose exec web sh -c 'wp search-replace \"#{CONFIG[:domain][:staging]}\" \"#{CONFIG[:domain][:dev]}\" --allow-root --skip-columns=guid'"
       else
