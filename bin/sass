@@ -12,7 +12,8 @@
 # For additional usage options, use the --help flag.
 
 require 'optparse'
-require 'yaml'
+require 'bundler/setup'
+require 'bootstrap'
 
 # Edit CONFIG params in config/config.rb
 require './config/config.rb'
@@ -35,7 +36,9 @@ module WPWorkshop
     end
 
     def sass_watch
-      cmd = "sass -r bootstrap-sass --watch #{CONFIG[:theme][:dev_path]}/#{CONFIG[:theme][:dev_folder]}/scss:#{CONFIG[:theme][:dev_path]}/#{CONFIG[:theme][:dev_folder]}/css --style #{@options[:style]}"
+      theme_path = "#{CONFIG[:theme][:dev_path]}/#{CONFIG[:theme][:dev_folder]}"
+      cmd = "sass --watch #{theme_path}/scss:#{theme_path}/css --style #{@options[:style]} " \
+            "--load-path='#{Bootstrap.stylesheets_path}' --quiet-deps"
 
       if @options[:simulate]
         puts 'Sass command to be executed... (OUTPUTTED WITHOUT EXECUTE)'
@@ -44,7 +47,7 @@ module WPWorkshop
         puts
       else
         puts 'Running Sass Watch...'
-        puts "\nSass Watch failed." unless system(cmd)
+        system(cmd) unless @options[:simulate]
       end
     end
   end
